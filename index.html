@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Optimizer Pro</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .operator-badge { transition: all 0.2s ease; }
+        .operator-badge:hover { transform: translateY(-1px); }
+        .slider { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; background: #e5e7eb; outline: none; }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #3b82f6; cursor: pointer; }
+        .slider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: none; }
+        .modal-backdrop { backdrop-filter: blur(4px); }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: #f1f1f1; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Enhanced operators data with comprehensive guide
+        const operators = [
+          { "operator": "/ELI5", "description": "Explain as if to a 5-year-old", "category": "simplification", "color": "blue" },
+          { "operator": "/TLDR", "description": "Summarize in a few lines", "category": "format", "color": "indigo" },
+          { "operator": "/STEP-BY-STEP", "description": "Break down reasoning in ordered steps", "category": "structure", "color": "green" },
+          { "operator": "/CHECKLIST", "description": "Convert into actionable list", "category": "format", "color": "purple" },
+          { "operator": "/EXEC SUMMARY", "description": "Generate brief executive summary", "category": "format", "color": "gray" },
+          { "operator": "/ACT AS", "description": "Respond from specific role", "category": "role", "color": "violet" },
+          { "operator": "/BRIEFLY", "description": "Response in 1-2 concise sentences", "category": "format", "color": "pink" },
+          { "operator": "/JARGON", "description": "Use appropriate technical terminology", "category": "tone", "color": "teal" },
+          { "operator": "/AUDIENCE", "description": "Adapt tone and detail to audience", "category": "tone", "color": "amber" },
+          { "operator": "/TONE", "description": "Change tone (formal, friendly, etc.)", "category": "tone", "color": "slate" },
+          { "operator": "/DEV MODE", "description": "Use developer technical style", "category": "technical", "color": "cyan" },
+          { "operator": "/PM MODE", "description": "Project management perspective", "category": "role", "color": "orange" },
+          { "operator": "/SWOT", "description": "Analyze strengths, weaknesses, opportunities, threats", "category": "analysis", "color": "red" },
+          { "operator": "/FORMAT AS", "description": "Apply specific format (table, JSON, etc.)", "category": "format", "color": "yellow" },
+          { "operator": "/COMPARE", "description": "Compare elements side by side", "category": "analysis", "color": "purple" },
+          { "operator": "/MULTI-PERSPECTIVE", "description": "Show multiple viewpoints", "category": "reasoning", "color": "sky" },
+          { "operator": "/CONTEXT STACK", "description": "Maintain multiple context layers", "category": "structure", "color": "emerald" },
+          { "operator": "/BEGIN WITH", "description": "Force start with specific text", "category": "structure", "color": "blue" },
+          { "operator": "/END WITH", "description": "Force end with specific text", "category": "structure", "color": "blue" },
+          { "operator": "/ROLE: TASK: FORMAT:", "description": "Define role, task, and format explicitly", "category": "structure", "color": "violet" },
+          { "operator": "/SCHEMA", "description": "Generate structured schema or data model", "category": "technical", "color": "cyan" },
+          { "operator": "/REWRITE AS:", "description": "Rephrase in requested style", "category": "format", "color": "pink" },
+          { "operator": "/REFLECTIVE MODE", "description": "Reflect and refine the response", "category": "reasoning", "color": "lime" },
+          { "operator": "/SYSTEMATIC BIAS CHECK", "description": "Identify potential biases and gaps", "category": "analysis", "color": "red" },
+          { "operator": "/DELIBERATE THINKING", "description": "Reason carefully and in detail", "category": "reasoning", "color": "emerald" },
+          { "operator": "/NO AUTOPILOT", "description": "Avoid superficial or generic responses", "category": "safety", "color": "red" },
+          { "operator": "/EVAL-SELF", "description": "Critique the response and suggest improvements", "category": "reasoning", "color": "orange" },
+          { "operator": "/PARALLEL LENSES", "description": "Examine topic from multiple angles simultaneously", "category": "reasoning", "color": "sky" },
+          { "operator": "/FIRST PRINCIPLES", "description": "Rebuild response from basics", "category": "reasoning", "color": "green" },
+          { "operator": "/CHAIN OF THOUGHT", "description": "Request brief reasoning steps outline", "category": "reasoning", "color": "lime" },
+          { "operator": "/PITFALLS", "description": "List traps, errors, and edge cases", "category": "analysis", "color": "yellow" },
+          { "operator": "/METRICS MODE", "description": "Use metrics, KPIs, or formulas", "category": "technical", "color": "cyan" },
+          { "operator": "/GUARDRAIL", "description": "Set strict limits not to cross", "category": "safety", "color": "rose" }
+        ];
+
+        // Configuration presets
+        const configPresets = {
+            code: { temperature: 0.1, top_p: 0.9, frequency_penalty: 0.3 },
+            creative: { temperature: 1.2, top_p: 0.95, presence_penalty: 0.6 },
+            analysis: { temperature: 0.3, top_p: 0.85, max_tokens: 1000 },
+            conversation: { temperature: 0.7, top_p: 0.9, frequency_penalty: 0.5 },
+            summary: { temperature: 0.3, top_p: 0.9, max_tokens: 200 },
+            brainstorm: { temperature: 1.5, top_p: 1.0, presence_penalty: 1.0 }
+        };
+
+        // Utility functions
+        const estimateTokens = (text) => Math.ceil(text.length / 4);
+        const calculateReadabilityLevel = (text) => {
+            const words = text.split(/\s+/).length;
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+            const avgWordsPerSentence = words / sentences;
+            const avgWordLength = text.replace(/\s/g, '').length / words;
+            return avgWordsPerSentence < 10 && avgWordLength < 5 ? 'simple' : 
+                   avgWordsPerSentence < 20 && avgWordLength < 6 ? 'medium' : 'complex';
+        };
+        const calculateCreativity = (temperature, top_p) => {
+            const creativityScore = (temperature + top_p) / 2;
+            return creativityScore < 0.3 ? 'low' : creativityScore < 0.7 ? 'medium' : 'high';
+        };
+        const buildOptimizedPrompt = (config) => {
+            let prompt = '';
+            if (config.role) prompt += `/ROLE: ${config.role}\n`;
+            if (config.tone) prompt += `/TONE: ${config.tone}\n`;
+            if (config.audience) prompt += `/AUDIENCE: ${config.audience}\n`;
+            if (config.format) prompt += `/FORMAT AS: ${config.format}\n`;
+            if (config.activeOperators.length > 0) prompt += config.activeOperators.join('\n') + '\n';
+            prompt += `/temperature=${config.temperature}\n`;
+            prompt += `/top_p=${config.top_p}\n`;
+            if (config.maxTokens) prompt += `/max_tokens=${config.maxTokens}\n`;
+            prompt += `PROMPT: ${config.prompt}`;
+            return prompt;
+        };
+        const getOperatorByName = (name) => operators.find(op => op.operator === name);
+        const formatReadabilityLevel = (level) => ({ simple: 'Simple', medium: 'Medium', complex: 'Complex' }[level] || level);
+        const formatCreativityLevel = (level) => ({ low: 'Low', medium: 'Medium', high: 'High' }[level] || level);
+
+        // Guide Modal Component
+        const GuideModal = ({ isOpen, onClose }) => {
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="modal-backdrop absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
+                    <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                        <div className="p-6 border-b border-gray-200">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    <i className="fas fa-book text-blue-500 mr-2"></i>
+                                    Complete Prompt Engineering Guide
+                                </h2>
+                                <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                                    <i className="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div className="p-6 overflow-y-auto scrollbar-thin max-h-[calc(90vh-80px)]">
+                            <div className="space-y-8">
+                                {/* Part 1: Operators */}
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Part 1: Prompt Operators</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {operators.map((op, index) => (
+                                            <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className={`px-2 py-1 rounded text-xs font-medium bg-${op.color}-100 text-${op.color}-800`}>
+                                                        {op.operator}
+                                                    </span>
+                                                    <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                                        {op.category}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-gray-700">{op.description}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Part 2: Configuration */}
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Part 2: LLM Configuration</h3>
+                                    <div className="bg-blue-50 p-4 rounded-lg">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <h4 className="font-semibold text-gray-800 mb-2">Temperature</h4>
+                                                <p className="text-sm text-gray-700">Controls randomness and creativity</p>
+                                                <ul className="text-xs text-gray-600 mt-1 space-y-1">
+                                                    <li>• 0.0-0.3: Code, analysis</li>
+                                                    <li>• 0.7-1.0: Creative writing</li>
+                                                    <li>• 1.5-2.0: Maximum experimentation</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold text-gray-800 mb-2">Top P</h4>
+                                                <p className="text-sm text-gray-700">Nucleus sampling - considers only % most probable tokens</p>
+                                                <ul className="text-xs text-gray-600 mt-1 space-y-1">
+                                                    <li>• 0.1: Deterministic</li>
+                                                    <li>• 0.9: Balance creativity/coherence</li>
+                                                    <li>• 1.0: Considers all tokens</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Part 3: Presets */}
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Part 3: Use Case Presets</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {Object.entries(configPresets).map(([key, preset]) => (
+                                            <div key={key} className="bg-gradient-to-br from-purple-50 to-blue-50 p-4 rounded-lg">
+                                                <h4 className="font-semibold text-gray-800 capitalize mb-2">{key}</h4>
+                                                <div className="text-xs text-gray-600 space-y-1">
+                                                    <div>Temperature: {preset.temperature}</div>
+                                                    <div>Top P: {preset.top_p}</div>
+                                                    {preset.max_tokens && <div>Max Tokens: {preset.max_tokens}</div>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Part 4: Powerful Combinations */}
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Part 4: Powerful Combinations</h3>
+                                    <div className="space-y-4">
+                                        <div className="bg-green-50 p-4 rounded-lg">
+                                            <h4 className="font-semibold text-green-800 mb-2">For Deep Analysis</h4>
+                                            <p className="text-sm text-green-700">
+                                                <code className="bg-green-100 px-2 py-1 rounded">/SYSTEMATIC BIAS CHECK + /MULTI-PERSPECTIVE + /CHAIN OF THOUGHT</code>
+                                            </p>
+                                            <p className="text-xs text-green-600 mt-1">Temperature: 0.3, Presence Penalty: 0.7</p>
+                                        </div>
+                                        <div className="bg-purple-50 p-4 rounded-lg">
+                                            <h4 className="font-semibold text-purple-800 mb-2">For Maximum Creativity</h4>
+                                            <p className="text-sm text-purple-700">
+                                                <code className="bg-purple-100 px-2 py-1 rounded">/NO AUTOPILOT + /PARALLEL LENSES + /BRAINSTORM</code>
+                                            </p>
+                                            <p className="text-xs text-purple-600 mt-1">Temperature: 1.3, Top P: 1.0, Presence Penalty: 1.2</p>
+                                        </div>
+                                        <div className="bg-orange-50 p-4 rounded-lg">
+                                            <h4 className="font-semibold text-orange-800 mb-2">For Perfect Code</h4>
+                                            <p className="text-sm text-orange-700">
+                                                <code className="bg-orange-100 px-2 py-1 rounded">/DEV MODE + /STEP-BY-STEP + /PITFALLS</code>
+                                            </p>
+                                            <p className="text-xs text-orange-600 mt-1">Temperature: 0.1, Top K: 30, Few-Shot with examples</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [config, setConfig] = useState({
+                prompt: '',
+                activeOperators: [],
+                temperature: 0.7,
+                top_p: 0.9,
+                maxTokens: 1000,
+                role: '',
+                tone: '',
+                audience: '',
+                format: '',
+                chainOfThought: false,
+                reflectiveMode: false,
+                noAutopilot: false,
+                guardrail: false
+            });
+
+            const [showGuide, setShowGuide] = useState(false);
+
+            useEffect(() => {
+                const newActiveOperators = [];
+                if (config.chainOfThought) newActiveOperators.push('/CHAIN OF THOUGHT');
+                if (config.reflectiveMode) newActiveOperators.push('/REFLECTIVE MODE');
+                if (config.noAutopilot) newActiveOperators.push('/NO AUTOPILOT');
+                if (config.guardrail) newActiveOperators.push('/GUARDRAIL');
+                setConfig(prev => ({ ...prev, activeOperators: newActiveOperators }));
+            }, [config.chainOfThought, config.reflectiveMode, config.noAutopilot, config.guardrail]);
+
+            const handleConfigChange = (newConfig) => {
+                setConfig(prev => ({ ...prev, ...newConfig }));
+            };
+
+            const resetAll = () => {
+                setConfig({
+                    prompt: '',
+                    activeOperators: [],
+                    temperature: 0.7,
+                    top_p: 0.9,
+                    maxTokens: 1000,
+                    role: '',
+                    tone: '',
+                    audience: '',
+                    format: '',
+                    chainOfThought: false,
+                    reflectiveMode: false,
+                    noAutopilot: false,
+                    guardrail: false
+                });
+            };
+
+            const applyPreset = (presetName) => {
+                const preset = configPresets[presetName];
+                if (preset) {
+                    handleConfigChange({
+                        temperature: preset.temperature,
+                        top_p: preset.top_p,
+                        maxTokens: preset.maxTokens || 1000
+                    });
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+                    <header className="bg-white shadow-sm border-b border-gray-200">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex items-center justify-between h-16">
+                                <div className="flex items-center">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                                        <i className="fas fa-magic text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900">Prompt Optimizer Pro</h1>
+                                        <p className="text-sm text-gray-500">Turn your rough ideas into perfect prompts</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setShowGuide(true)}
+                                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm flex items-center gap-2"
+                                    >
+                                        <i className="fas fa-book"></i>
+                                        Guide
+                                    </button>
+                                    <button
+                                        onClick={resetAll}
+                                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm flex items-center gap-2"
+                                    >
+                                        <i className="fas fa-undo"></i>
+                                        Reset All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+                            {/* Left Column - Prompt Input */}
+                            <div className="lg:col-span-1">
+                                <div className="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col">
+                                    <div className="mb-6">
+                                        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                                            <i className="fas fa-edit text-blue-500 mr-2"></i>
+                                            Prompt Input
+                                        </h2>
+                                        <p className="text-gray-600">Enter your raw prompt and apply operators</p>
+                                    </div>
+
+                                    <div className="mb-6 flex-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Your Prompt
+                                        </label>
+                                        <textarea
+                                            value={config.prompt}
+                                            onChange={(e) => handleConfigChange({ prompt: e.target.value })}
+                                            placeholder="Enter your prompt here..."
+                                            className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                        />
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Operators</h3>
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {['/ELI5', '/STEP-BY-STEP', '/EXEC SUMMARY', '/CHAIN OF THOUGHT'].map(op => {
+                                                const operator = getOperatorByName(op);
+                                                return operator ? (
+                                                    <button
+                                                        key={op}
+                                                        onClick={() => {
+                                                            const newOperators = config.activeOperators.includes(op)
+                                                                ? config.activeOperators.filter(o => o !== op)
+                                                                : [...config.activeOperators, op];
+                                                            handleConfigChange({ activeOperators: newOperators });
+                                                        }}
+                                                        className={`operator-badge px-3 py-1 rounded-full text-xs font-medium ${
+                                                            config.activeOperators.includes(op)
+                                                                ? `bg-${operator.color}-500 text-white`
+                                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                        }`}
+                                                    >
+                                                        {op}
+                                                    </button>
+                                                ) : null;
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 overflow-y-auto">
+                                        <h3 className="text-sm font-medium text-gray-700 mb-2">All Operators</h3>
+                                        <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+                                            {operators.map(operator => (
+                                                <div key={operator.operator}>
+                                                    <button
+                                                        onClick={() => {
+                                                            const newOperators = config.activeOperators.includes(operator.operator)
+                                                                ? config.activeOperators.filter(o => o !== operator.operator)
+                                                                : [...config.activeOperators, operator.operator];
+                                                            handleConfigChange({ activeOperators: newOperators });
+                                                        }}
+                                                        className={`w-full text-left p-3 rounded-lg border transition-all ${
+                                                            config.activeOperators.includes(operator.operator)
+                                                                ? `border-${operator.color}-500 bg-${operator.color}-50`
+                                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <span className={`font-medium ${
+                                                                config.activeOperators.includes(operator.operator)
+                                                                    ? `text-${operator.color}-700`
+                                                                    : 'text-gray-800'
+                                                            }`}>
+                                                                {operator.operator}
+                                                            </span>
+                                                            {config.activeOperators.includes(operator.operator) && (
+                                                                <i className="fas fa-check text-xs"></i>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-gray-600 mt-1">
+                                                            {operator.description}
+                                                        </p>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Middle Column - LLM Configuration */}
+                            <div className="lg:col-span-1">
+                                <div className="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col">
+                                    <div className="mb-6">
+                                        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                                            <i className="fas fa-cog text-purple-500 mr-2"></i>
+                                            LLM Configuration
+                                        </h2>
+                                        <p className="text-gray-600">Fine-tune your LLM parameters</p>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Parameters</h3>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <label className="text-sm font-medium text-gray-700">Temperature</label>
+                                                    <span className="text-sm text-gray-600 font-mono">{config.temperature?.toFixed(1)}</span>
+                                                </div>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="2"
+                                                    step="0.1"
+                                                    value={config.temperature || 0.7}
+                                                    onChange={(e) => handleConfigChange({ temperature: parseFloat(e.target.value) })}
+                                                    className="slider w-full"
+                                                />
+                                            </div>
+                                            <div>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <label className="text-sm font-medium text-gray-700">Top P</label>
+                                                    <span className="text-sm text-gray-600 font-mono">{config.top_p?.toFixed(1)}</span>
+                                                </div>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="1"
+                                                    step="0.1"
+                                                    value={config.top_p || 0.9}
+                                                    onChange={(e) => handleConfigChange({ top_p: parseFloat(e.target.value) })}
+                                                    className="slider w-full"
+                                                />
+                                            </div>
+                                            <div>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <label className="text-sm font-medium text-gray-700">Max Tokens</label>
+                                                    <span className="text-sm text-gray-600 font-mono">{config.maxTokens || 1000}</span>
+                                                </div>
+                                                <input
+                                                    type="range"
+                                                    min="100"
+                                                    max="4000"
+                                                    step="100"
+                                                    value={config.maxTokens || 1000}
+                                                    onChange={(e) => handleConfigChange({ maxTokens: parseInt(e.target.value) })}
+                                                    className="slider w-full"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Use Case Presets</h3>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <button onClick={() => applyPreset('code')} className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                                Code
+                                            </button>
+                                            <button onClick={() => applyPreset('creative')} className="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm hover:bg-purple-200 transition-colors">
+                                                Creative
+                                            </button>
+                                            <button onClick={() => applyPreset('analysis')} className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm hover:bg-green-200 transition-colors">
+                                                Analysis
+                                            </button>
+                                            <button onClick={() => applyPreset('conversation')} className="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm hover:bg-orange-200 transition-colors">
+                                                Conversation
+                                            </button>
+                                            <button onClick={() => applyPreset('summary')} className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                                                Summary
+                                            </button>
+                                            <button onClick={() => applyPreset('brainstorm')} className="px-3 py-2 bg-pink-100 text-pink-700 rounded-lg text-sm hover:bg-pink-200 transition-colors">
+                                                Brainstorm
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Advanced Settings</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                                                <select
+                                                    value={config.role || ''}
+                                                    onChange={(e) => handleConfigChange({ role: e.target.value })}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Select role</option>
+                                                    <option value="developer">Developer</option>
+                                                    <option value="marketer">Marketer</option>
+                                                    <option value="teacher">Teacher</option>
+                                                    <option value="doctor">Doctor</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                                                <select
+                                                    value={config.tone || ''}
+                                                    onChange={(e) => handleConfigChange({ tone: e.target.value })}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Select tone</option>
+                                                    <option value="formal">Formal</option>
+                                                    <option value="casual">Casual</option>
+                                                    <option value="friendly">Friendly</option>
+                                                    <option value="professional">Professional</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Safety Features</h3>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="chainOfThought"
+                                                    checked={config.chainOfThought || false}
+                                                    onChange={(e) => handleConfigChange({ chainOfThought: e.target.checked })}
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                                <label htmlFor="chainOfThought" className="ml-2 text-sm font-medium text-gray-700">
+                                                    Chain of Thought
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="reflectiveMode"
+                                                    checked={config.reflectiveMode || false}
+                                                    onChange={(e) => handleConfigChange({ reflectiveMode: e.target.checked })}
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                                <label htmlFor="reflectiveMode" className="ml-2 text-sm font-medium text-gray-700">
+                                                    Reflective Mode
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="noAutopilot"
+                                                    checked={config.noAutopilot || false}
+                                                    onChange={(e) => handleConfigChange({ noAutopilot: e.target.checked })}
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                                <label htmlFor="noAutopilot" className="ml-2 text-sm font-medium text-gray-700">
+                                                    No Autopilot
+                                                </label>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="guardrail"
+                                                    checked={config.guardrail || false}
+                                                    onChange={(e) => handleConfigChange({ guardrail: e.target.checked })}
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                                <label htmlFor="guardrail" className="ml-2 text-sm font-medium text-gray-700">
+                                                    Guardrail
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column - Preview */}
+                            <div className="lg:col-span-1">
+                                <div className="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col">
+                                    <div className="mb-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                                                    <i className="fas fa-eye text-green-500 mr-2"></i>
+                                                    Optimized Prompt
+                                                </h2>
+                                                <p className="text-gray-600">Real-time preview of your enhanced prompt</p>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(buildOptimizedPrompt(config));
+                                                }}
+                                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                                            >
+                                                <i className="fas fa-copy"></i>
+                                                Copy
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-4 mb-6">
+                                        <div className="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div className="text-2xl font-bold text-blue-600">{estimateTokens(config.prompt)}</div>
+                                            <div className="text-xs text-gray-600">Input Tokens</div>
+                                        </div>
+                                        <div className="bg-green-50 p-3 rounded-lg text-center">
+                                            <div className="text-2xl font-bold text-green-600">{config.maxTokens || 1000}</div>
+                                            <div className="text-xs text-gray-600">Output Tokens</div>
+                                        </div>
+                                        <div className="bg-purple-50 p-3 rounded-lg text-center">
+                                            <div className="text-2xl font-bold text-purple-600">
+                                                {formatReadabilityLevel(calculateReadabilityLevel(config.prompt))}
+                                            </div>
+                                            <div className="text-xs text-gray-600">Readability</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm font-medium text-gray-700">Creativity Level</span>
+                                            <span className="text-sm font-medium text-purple-600">
+                                                {formatCreativityLevel(calculateCreativity(config.temperature, config.top_p))}
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2">
+                                            <div 
+                                                className={`h-2 rounded-full ${
+                                                    calculateCreativity(config.temperature, config.top_p) === 'low' ? 'bg-blue-500' :
+                                                    calculateCreativity(config.temperature, config.top_p) === 'medium' ? 'bg-purple-500' : 'bg-pink-500'
+                                                }`}
+                                                style={{ 
+                                                    width: calculateCreativity(config.temperature, config.top_p) === 'low' ? '33%' : 
+                                                           calculateCreativity(config.temperature, config.top_p) === 'medium' ? '66%' : '100%' 
+                                                }}
+                                            ></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto">
+                                        <div className="font-mono text-sm whitespace-pre-wrap">
+                                            {buildOptimizedPrompt(config)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* Guide Modal */}
+                    <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

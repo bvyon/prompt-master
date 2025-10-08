@@ -1,0 +1,45 @@
+{
+  "name": "prompt-optimizer-pro",
+  "version": "1.0.0",
+  "description": "A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview and intelligent metrics",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "keywords": [
+    "prompt-engineering",
+    "llm",
+    "react",
+    "optimization",
+    "ai-tools"
+  ],
+  "author": "Prompt Optimizer Pro Team",
+  "license": "MIT",
+  "homepage": "https://yourusername.github.io/prompt-optimizer-pro",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "framer-motion": "^10.16.4",
+    "react-scripts": "5.0.1"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

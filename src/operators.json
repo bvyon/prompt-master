@@ -1,0 +1,200 @@
+[
+  {
+    "operator": "/ELI5",
+    "description": "Explain as if to a 5-year-old",
+    "category": "simplification",
+    "color": "blue"
+  },
+  {
+    "operator": "/TLDR",
+    "description": "Summarize in a few lines",
+    "category": "format",
+    "color": "indigo"
+  },
+  {
+    "operator": "/STEP-BY-STEP",
+    "description": "Break down reasoning in ordered steps",
+    "category": "structure",
+    "color": "green"
+  },
+  {
+    "operator": "/CHECKLIST",
+    "description": "Convert into actionable list",
+    "category": "format",
+    "color": "purple"
+  },
+  {
+    "operator": "/EXEC SUMMARY",
+    "description": "Generate brief executive summary",
+    "category": "format",
+    "color": "gray"
+  },
+  {
+    "operator": "/ACT AS",
+    "description": "Respond from specific role",
+    "category": "role",
+    "color": "violet"
+  },
+  {
+    "operator": "/BRIEFLY",
+    "description": "Response in 1-2 concise sentences",
+    "category": "format",
+    "color": "pink"
+  },
+  {
+    "operator": "/JARGON",
+    "description": "Use appropriate technical terminology",
+    "category": "tone",
+    "color": "teal"
+  },
+  {
+    "operator": "/AUDIENCE",
+    "description": "Adapt tone and detail to audience",
+    "category": "tone",
+    "color": "amber"
+  },
+  {
+    "operator": "/TONE",
+    "description": "Change tone (formal, friendly, etc.)",
+    "category": "tone",
+    "color": "slate"
+  },
+  {
+    "operator": "/DEV MODE",
+    "description": "Use developer technical style",
+    "category": "technical",
+    "color": "cyan"
+  },
+  {
+    "operator": "/PM MODE",
+    "description": "Project management perspective",
+    "category": "role",
+    "color": "orange"
+  },
+  {
+    "operator": "/SWOT",
+    "description": "Analyze strengths, weaknesses, opportunities, threats",
+    "category": "analysis",
+    "color": "red"
+  },
+  {
+    "operator": "/FORMAT AS",
+    "description": "Apply specific format (table, JSON, etc.)",
+    "category": "format",
+    "color": "yellow"
+  },
+  {
+    "operator": "/COMPARE",
+    "description": "Compare elements side by side",
+    "category": "analysis",
+    "color": "purple"
+  },
+  {
+    "operator": "/MULTI-PERSPECTIVE",
+    "description": "Show multiple viewpoints",
+    "category": "reasoning",
+    "color": "sky"
+  },
+  {
+    "operator": "/CONTEXT STACK",
+    "description": "Maintain multiple context layers",
+    "category": "structure",
+    "color": "emerald"
+  },
+  {
+    "operator": "/BEGIN WITH",
+    "description": "Force start with specific text",
+    "category": "structure",
+    "color": "blue"
+  },
+  {
+    "operator": "/END WITH",
+    "description": "Force end with specific text",
+    "category": "structure",
+    "color": "blue"
+  },
+  {
+    "operator": "/ROLE: TASK: FORMAT:",
+    "description": "Define role, task, and format explicitly",
+    "category": "structure",
+    "color": "violet"
+  },
+  {
+    "operator": "/SCHEMA",
+    "description": "Generate structured schema or data model",
+    "category": "technical",
+    "color": "cyan"
+  },
+  {
+    "operator": "/REWRITE AS:",
+    "description": "Rephrase in requested style",
+    "category": "format",
+    "color": "pink"
+  },
+  {
+    "operator": "/REFLECTIVE MODE",
+    "description": "Reflect and refine the response",
+    "category": "reasoning",
+    "color": "lime"
+  },
+  {
+    "operator": "/SYSTEMATIC BIAS CHECK",
+    "description": "Identify potential biases and gaps",
+    "category": "analysis",
+    "color": "red"
+  },
+  {
+    "operator": "/DELIBERATE THINKING",
+    "description": "Reason carefully and in detail",
+    "category": "reasoning",
+    "color": "emerald"
+  },
+  {
+    "operator": "/NO AUTOPILOT",
+    "description": "Avoid superficial or generic responses",
+    "category": "safety",
+    "color": "red"
+  },
+  {
+    "operator": "/EVAL-SELF",
+    "description": "Critique the response and suggest improvements",
+    "category": "reasoning",
+    "color": "orange"
+  },
+  {
+    "operator": "/PARALLEL LENSES",
+    "description": "Examine topic from multiple angles simultaneously",
+    "category": "reasoning",
+    "color": "sky"
+  },
+  {
+    "operator": "/FIRST PRINCIPLES",
+    "description": "Rebuild response from basics",
+    "category": "reasoning",
+    "color": "green"
+  },
+  {
+    "operator": "/CHAIN OF THOUGHT",
+    "description": "Request brief reasoning steps outline",
+    "category": "reasoning",
+    "color": "lime"
+  },
+  {
+    "operator": "/PITFALLS",
+    "description": "List traps, errors, and edge cases",
+    "category": "analysis",
+    "color": "yellow"
+  },
+  {
+    "operator": "/METRICS MODE",
+    "description": "Use metrics, KPIs, or formulas",
+    "category": "technical",
+    "color": "cyan"
+  },
+  {
+    "operator": "/GUARDRAIL",
+    "description": "Set strict limits not to cross",
+    "category": "safety",
+    "color": "rose"
+  }
+]
