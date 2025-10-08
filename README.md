@@ -8,8 +8,8 @@ A comprehensive web application for optimizing prompts for large language models
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/prompt-optimizer-pro.git
-   cd prompt-optimizer-pro
+   git clone https://github.com/bvyon/prompt-master.git
+   cd prompt-master
    ```
 
 2. **Install dependencies**:
@@ -234,4 +234,4 @@ If you have any questions or issues, please open an issue on GitHub.
 
 **Built with ❤️ using React, Tailwind CSS, and Framer Motion**
 
-**Deployed with GitHub Actions 🚀**
+**Deployed with GitHub Actions 🚀**# prompt-master
