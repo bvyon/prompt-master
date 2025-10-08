@@ -1,4 +1,4 @@
-# Prompt Optimizer Pro
+# Prompt Master
 
 A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview and intelligent metrics.
 
@@ -234,4 +234,4 @@ If you have any questions or issues, please open an issue on GitHub.
 
 **Built with ❤️ using React, Tailwind CSS, and Framer Motion**
 
-**Deployed with GitHub Actions 🚀**# prompt-master
+**Deployed with GitHub Actions 🚀**

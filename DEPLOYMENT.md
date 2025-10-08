@@ -56,7 +56,7 @@ npm run deploy
 ## Project Structure
 
 ```
-prompt-optimizer-pro/
+prompt-master/
 ├── public/                 # Static files
 │   ├── index.html         # Main HTML template
 │   └── favicon.ico        # App icon
