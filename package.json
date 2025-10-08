@@ -1,5 +1,5 @@
 {
-  "name": "prompt-optimizer-pro",
+  "name": "prompt-master",
   "version": "1.0.0",
   "description": "A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview and intelligent metrics",
   "main": "index.js",
@@ -20,7 +20,7 @@
   ],
   "author": "Prompt Optimizer Pro Team",
   "license": "MIT",
-  "homepage": "https://yourusername.github.io/prompt-optimizer-pro",
+  "homepage": "https://bvyon.github.io/prompt-master",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

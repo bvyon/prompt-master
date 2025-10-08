@@ -1,6 +1,6 @@
-# Deployment Guide for Prompt Optimizer Pro
+# Deployment Guide for Prompt Master
 
-This guide will help you deploy the Prompt Optimizer Pro application to GitHub Pages.
+This guide will help you deploy the Prompt Master application to GitHub Pages.
 
 ## Prerequisites
 
@@ -12,25 +12,21 @@ This guide will help you deploy the Prompt Optimizer Pro application to GitHub P
 
 ### 1. GitHub Repository Setup
 
-1. Create a new GitHub repository:
-   - Go to https://github.com/new
-   - Repository name: `prompt-optimizer-pro`
-   - Make it Public (for GitHub Pages)
-   - Don't initialize with README (we'll do that manually)
+Your repository already exists at: https://github.com/bvyon/prompt-master
 
-2. Initialize Git repository and push your code:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: Prompt Optimizer Pro"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/prompt-optimizer-pro.git
-   git push -u origin main
-   ```
+Initialize Git repository and push your code:
+```bash
+git init
+git add .
+git commit -m "Initial commit: Prompt Master"
+git branch -M main
+git remote add origin https://github.com/bvyon/prompt-master.git
+git push -u origin main
+```
 
 ### 2. Configure GitHub Pages
 
-1. Go to your repository on GitHub
+1. Go to your repository on GitHub: https://github.com/bvyon/prompt-master
 2. Click on the "Settings" tab
 3. Scroll down to the "Pages" section
 4. Under "Build and deployment":
