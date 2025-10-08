@@ -82,7 +82,7 @@ const App = () => {
                                 <i className="fas fa-magic text-white text-lg"></i>
                             </motion.div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Prompt Optimizer Pro</h1>
+                                <h1 className="text-2xl font-bold text-gray-900">Prompt Master</h1>
                                 <p className="text-sm text-gray-500">Turn your rough ideas into perfect prompts</p>
                             </div>
                         </div>
@@ -108,7 +108,7 @@ const App = () => {
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[60vh]">
                     {/* Left Column - Prompt Input */}
                     <div className="lg:col-span-1">
                         <PromptInputPanel
@@ -156,7 +156,7 @@ const App = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-gray-500">
-                            Prompt Optimizer Pro - Built with React, Tailwind CSS, and Framer Motion
+                            Prompt Master - Built with React, Tailwind CSS, and Framer Motion
                         </p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                             <span>25+ Operators</span>

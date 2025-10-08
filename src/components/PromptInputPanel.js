@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
+import { getColorClasses } from '../utils/colorClasses';
 
 const PromptInputPanel = ({ 
     prompt, 
@@ -10,25 +11,22 @@ const PromptInputPanel = ({
     operators 
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredOperators, setFilteredOperators] = useState(operators);
     const [selectedCategory, setSelectedCategory] = useState('all');
 
-    // Filter operators based on search term and category
-    useEffect(() => {
+    // Filter operators based on search term and category (memoized)
+    const filteredOperators = useMemo(() => {
         let filtered = operators;
-        
         if (selectedCategory !== 'all') {
             filtered = filtered.filter(op => op.category === selectedCategory);
         }
-        
         if (searchTerm) {
+            const term = searchTerm.toLowerCase();
             filtered = filtered.filter(op => 
-                op.operator.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                op.description.toLowerCase().includes(searchTerm.toLowerCase())
+                op.operator.toLowerCase().includes(term) ||
+                op.description.toLowerCase().includes(term)
             );
         }
-        
-        setFilteredOperators(filtered);
+        return filtered;
     }, [searchTerm, selectedCategory, operators]);
 
     const categories = ['all', ...new Set(operators.map(op => op.category))];
@@ -103,19 +101,23 @@ const PromptInputPanel = ({
                 <div className="flex flex-wrap gap-2 mb-3">
                     {['/ELI5', '/STEP-BY-STEP', '/EXEC SUMMARY', '/CHAIN OF THOUGHT'].map(op => {
                         const operator = promptBuilder.getOperatorByName(operators, op);
-                        return operator ? (
-                            <button
-                                key={op}
-                                onClick={() => toggleOperator(op)}
-                                className={`operator-badge px-3 py-1 rounded-full text-xs font-medium ${
-                                    activeOperators.includes(op)
-                                        ? `bg-${operator.color}-500 text-white`
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                {op}
-                            </button>
-                        ) : null;
+                        return operator ? (() => {
+                            const color = getColorClasses(operator.color);
+                            const activeClasses = `${color.bgSolid} ${color.textSolid}`;
+                            return (
+                                <button
+                                    key={op}
+                                    onClick={() => toggleOperator(op)}
+                                    className={`operator-badge px-3 py-1 rounded-full text-xs font-medium ${
+                                        activeOperators.includes(op)
+                                            ? activeClasses
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    {op}
+                                </button>
+                            );
+                        })() : null;
                     })}
                 </div>
             </div>
@@ -123,7 +125,7 @@ const PromptInputPanel = ({
             {/* All operators */}
             <div className="flex-1 overflow-y-auto">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">All Operators</h3>
-                <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+                <div className="grid grid-cols-1 gap-2 max-h-64 sm:max-h-80 md:max-h-96 overflow-y-auto pr-2">
                     {filteredOperators.map(operator => (
                         <motion.div
                             key={operator.operator}
@@ -133,15 +135,15 @@ const PromptInputPanel = ({
                             <button
                                 onClick={() => toggleOperator(operator.operator)}
                                 className={`w-full text-left p-3 rounded-lg border transition-all ${
-                                    activeOperators.includes(operator.operator)
-                                        ? `border-${operator.color}-500 bg-${operator.color}-50`
-                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                }`}
+                                        activeOperators.includes(operator.operator)
+                                            ? `${getColorClasses(operator.color).border} ${getColorClasses(operator.color).bg}`
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                    }`}
                             >
                                 <div className="flex items-center justify-between">
                                     <span className={`font-medium ${
                                         activeOperators.includes(operator.operator)
-                                            ? `text-${operator.color}-700`
+                                            ? getColorClasses(operator.color).text
                                             : 'text-gray-800'
                                     }`}>
                                         {operator.operator}

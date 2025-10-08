@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
+import { getColorClasses } from '../utils/colorClasses';
 
 const PromptPreviewPanel = ({ 
     config, 
@@ -19,7 +20,8 @@ const PromptPreviewPanel = ({
         try {
             await navigator.clipboard.writeText(optimizedPrompt);
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            // disable for a short period to avoid repeated clicks
+            setTimeout(() => setCopied(false), 1500);
         } catch (err) {
             console.error('Failed to copy: ', err);
         }
@@ -63,11 +65,14 @@ const PromptPreviewPanel = ({
                 const operator = operators.find(op => op.operator === operatorName);
                 return (
                     <div key={index} className="flex items-center gap-2 mb-1">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            operator ? `bg-${operator.color}-100 text-${operator.color}-800` : 'bg-gray-100 text-gray-800'
-                        }`}>
-                            {operatorName}
-                        </span>
+                        {(() => {
+                            const classes = operator ? getColorClasses(operator.color) : getColorClasses('gray');
+                            return (
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${classes.bg} ${classes.text}`}>
+                                    {operatorName}
+                                </span>
+                            );
+                        })()}
                         <button
                             onClick={() => setShowExplanation(!showExplanation)}
                             className="text-xs text-gray-500 hover:text-gray-700"

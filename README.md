@@ -40,6 +40,8 @@ You can also open `public/index.html` directly in your browser, but this may sho
 - Quick operator shortcuts
 - Color-coded operator badges
 
+Note: Color badges are now driven by a small utility (`src/utils/colorClasses.js`) that maps operator color keys to static Tailwind class names. This avoids missing CSS classes in production builds (Tailwind needs static class names to include them in the final CSS).
+
 ### 2. LLM Configuration Panel
 - **Parameters**: Temperature, Top P, Max Tokens sliders
 - **Advanced Settings**: Role, Tone, Audience, Format dropdowns
@@ -64,6 +66,33 @@ You can also open `public/index.html` directly in your browser, but this may sho
 
 - **React 18** - UI framework
 - **Tailwind CSS** - Styling
+## ✅ Recent fixes and improvements
+
+- Global CSS safety fixes (applied to `src/index.css`):
+   - `overflow-x: hidden` added to `html, body, #root` to prevent horizontal scroll on small screens or when large elements are present.
+   - `box-sizing: border-box` applied globally to make padding/border calculations predictable.
+   - Media elements (images, SVGs, video) limited with `max-width: 100%` to avoid overflow.
+   - Long operator names and monospaced preview text now wrap safely (`word-break` / `overflow-wrap`).
+
+- Tailwind class detection:
+   - Replaced dynamic template strings like `` `bg-${operator.color}-500` `` with a static mapping (`src/utils/colorClasses.js`) so Tailwind includes the necessary classes during build.
+
+- Performance and UX tweaks:
+   - Operator filtering memoized with `useMemo` to avoid unnecessary recalculations when typing/searching.
+   - Operator lists and preview panels use `overflow-y-auto` with sensible `max-height` at breakpoints to avoid pushing layout and to enable internal scrolling.
+   - Copy-to-clipboard button temporarily disables repeated clicks and shows a brief "Copied" state.
+
+These changes were applied to improve behavior when deployed to GitHub Pages and on small/mobile viewports.
+
+## 📱 Responsive and testing notes
+
+- To test responsiveness locally, run `npm start` and use DevTools (toggle device toolbar) to check widths 375px, 768px, 1024px.
+- Generate a production build (`npm run build`) and inspect the `build` folder or deploy to GitHub Pages to validate the final CSS payload.
+
+## 🛳️ Deployment notes
+
+- If you deploy to GitHub Pages, confirm the `homepage` field in `package.json` matches the repository path or update it to `"/"` for root deployment. The build process will use this to generate correct asset URLs.
+- The mapping utility for color classes ensures classes are present in the final CSS; if you add new operator colors, also add entries to `src/utils/colorClasses.js`.
 - **Framer Motion** - Animations
 - **Font Awesome** - Icons
 - **GitHub Actions** - Automated deployment

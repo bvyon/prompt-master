@@ -11,6 +11,34 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevent horizontal overflow and use border-box sizing everywhere */
+html, body, #root {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent images and SVGs from causing horizontal overflow */
+img, picture, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure long operator names and monospaced preview text wrap instead of overflowing */
+.operator-badge, .font-mono {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Small utility to allow safe long text wrapping in buttons and labels */
+.text-wrap {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
