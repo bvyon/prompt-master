@@ -130,12 +130,12 @@ const App = () => {
                             setConfig={updateConfig}
                         />
                         {step === 'configure' && (
-                            <div className="mt-4">
+                            <div className="hidden md:block mt-4">
                                 <button
                                     onClick={proceedToPrompt}
                                     className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base"
                                 >
-                                    Proceed to Prompt
+                                    Proceed to Prompt →
                                 </button>
                             </div>
                         )}
@@ -176,6 +176,19 @@ const App = () => {
                         </AnimatePresence>
                     </div>
                 </div>
+
+                {/* Mobile Action Button - Always visible on mobile */}
+                <div className="md:hidden fixed bottom-6 left-4 right-4 z-10">
+                    {step === 'configure' && (
+                        <button
+                            onClick={proceedToPrompt}
+                            className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium shadow-lg"
+                        >
+                            Proceed to Prompt →
+                        </button>
+                    )}
+                </div>
+
             </main>
 
             {/* Footer */}
