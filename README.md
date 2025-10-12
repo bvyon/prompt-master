@@ -33,36 +33,36 @@ You can also open `public/index.html` directly in your browser, but this may sho
 
 ## 🎯 Features
 
-### 1. LLM Configuration Panel (Primero)
+### 1. LLM Configuration Panel (First)
 - **Parameters**: Temperature, Top P, Max Tokens sliders
 - **Advanced Settings**: Role, Tone, Audience, Format dropdowns
 - **Safety Features**: Chain of Thought, Reflective Mode, No Autopilot, Guardrail checkboxes
 - Collapsible sections for organized interface
-- Botón "Proceed to Prompt" para avanzar al siguiente paso
+- "Proceed to Prompt" button to advance to the next step
 
-### 2. Prompt Input Panel (Segundo)
+### 2. Prompt Input Panel (Second)
 - Textarea for raw prompt input
 - 25+ predefined operators with categories
 - Search and filter functionality
 - Quick operator shortcuts
 - Color-coded operator badges
-- Solo activo después de configurar los parámetros
-- Botón "Generate Prompt" para crear el prompt optimizado
+- Only active after configuring parameters
+- "Generate Prompt" button to create the optimized prompt
 
-### 3. Prompt Preview Panel (Tercero)
+### 3. Prompt Preview Panel (Third)
 - Real-time optimized prompt generation
 - Copy to clipboard functionality
 - Configuration explanations
 - Token counting (input/output)
 - Readability and creativity indicators
 
-### 4. Metrics Panel (Cuarto)
+### 4. Metrics Panel (Fourth)
 - Token usage analysis
 - Readability assessment (simple/medium/complex)
 - Creativity level indicator
 - Efficiency scoring with visual progress ring
 - Smart recommendations for improvement
-- Toggle para mostrar/ocultar panel
+- Toggle to show/hide panel
 
 Note: Color badges are now driven by a small utility (`src/utils/colorClasses.js`) that maps operator color keys to static Tailwind class names. This avoids missing CSS classes in production builds (Tailwind needs static class names to include them in the final CSS).
 
@@ -101,75 +101,75 @@ These changes were applied to improve behavior when deployed to GitHub Pages and
 - **Font Awesome** - Icons
 - **GitHub Actions** - Automated deployment
 
-## 📋 Guía de Uso Paso a Paso
+## 📋 Step-by-Step Usage Guide
 
-### Paso 1: Configuración Inicial del LLM
-1. **Abre la aplicación** en tu navegador web
-2. **En el panel izquierdo (LLM Configuration)**, ajusta los parámetros básicos:
-   - **Temperature**: Controla la creatividad (0.0 = más determinista, 1.0 = más creativo)
-   - **Top P**: Controla la diversidad de respuestas (0.0-1.0)
-   - **Max Tokens**: Límite de longitud de la respuesta
-3. **Configura las opciones avanzadas**:
-   - **Role**: Selecciona el rol del asistente (experto, analista, etc.)
-   - **Tone**: Elige el tono deseado (técnico, casual, formal, etc.)
-   - **Audience**: Define a quién se dirige el contenido (principiante, experto, etc.)
-   - **Format**: Selecciona el formato de salida (lista, tabla, JSON, etc.)
-4. **Activa las características de seguridad** según sea necesario:
-   - **Chain of Thought**: Habilita razonamiento paso a paso
-   - **Reflective Mode**: Permite reflexión y auto-corrección
-   - **No Autopilot**: Desactiva el modo automático
-   - **Guardrail**: Aplica filtros de seguridad
-5. **Haz clic en "Proceed to Prompt"** para continuar al siguiente paso
+### Step 1: Initial LLM Configuration
+1. **Open the application** in your web browser
+2. **In the left panel (LLM Configuration)**, adjust the basic parameters:
+   - **Temperature**: Controls creativity (0.0 = more deterministic, 1.0 = more creative)
+   - **Top P**: Controls response diversity (0.0-1.0)
+   - **Max Tokens**: Response length limit
+3. **Configure the advanced options**:
+   - **Role**: Select the assistant role (expert, analyst, etc.)
+   - **Tone**: Choose the desired tone (technical, casual, formal, etc.)
+   - **Audience**: Define who the content is for (beginner, expert, etc.)
+   - **Format**: Select the output format (list, table, JSON, etc.)
+4. **Enable safety features** as needed:
+   - **Chain of Thought**: Enables step-by-step reasoning
+   - **Reflective Mode**: Allows reflection and self-correction
+   - **No Autopilot**: Disables automatic mode
+   - **Guardrail**: Applies safety filters
+5. **Click "Proceed to Prompt"** to continue to the next step
 
-### Paso 2: Redacción del Prompt
-1. **En el panel central (Prompt Input Panel)**, ahora disponible:
-   - **Área de texto**: Ingresa tu prompt base o rough idea
-   - **Operadores predefinidos**: 25+ operadores organizados por categorías
-   - **Búsqueda y filtrado**: Encuentra operadores rápidamente
-   - **Atajos rápidos**: Acceso directo a operadores comunes
-   - **Badges con color**: Identificación visual por categoría
-2. **Usa los operadores estratégicamente**:
-   - **Simplificación**: /ELI5, /BEGINNER para explicaciones simples
-   - **Estructura**: /STEP-BY-STEP, /CHECKLIST para guías organizadas
-   - **Formato**: /EXEC SUMMARY, /BULLET POINTS, /TABLE, /JSON, /MARKDOWN
-   - **Tono**: /TECHNICAL, /CASUAL, /FORMAL, /CREATIVE, /ANALYTICAL
-   - **Razonamiento**: /CHAIN OF THOUGHT, /REFLECTIVE MODE
-   - **Seguridad**: /NO AUTOPILOT, /GUARDRAIL
-   - **Rol**: /ACT AS, /EXPERT
-   - **Acción**: /CRITIQUE, /IMPROVE, /COMPARE, /EXAMPLES
-3. **Genera el prompt optimizado**:
-   - Haz clic en "Generate Prompt" para combinar todo
-   - El resultado aparecerá en el panel de previsualización
+### Step 2: Prompt Writing
+1. **In the center panel (Prompt Input Panel)**, now available:
+   - **Text area**: Enter your base prompt or rough idea
+   - **Predefined operators**: 25+ operators organized by categories
+   - **Search and filtering**: Find operators quickly
+   - **Quick shortcuts**: Direct access to common operators
+   - **Color-coded badges**: Visual identification by category
+2. **Use operators strategically**:
+   - **Simplification**: /ELI5, /BEGINNER for simple explanations
+   - **Structure**: /STEP-BY-STEP, /CHECKLIST for organized guides
+   - **Format**: /EXEC SUMMARY, /BULLET POINTS, /TABLE, /JSON, /MARKDOWN
+   - **Tone**: /TECHNICAL, /CASUAL, /FORMAL, /CREATIVE, /ANALYTICAL
+   - **Reasoning**: /CHAIN OF THOUGHT, /REFLECTIVE MODE
+   - **Safety**: /NO AUTOPILOT, /GUARDRAIL
+   - **Role**: /ACT AS, /EXPERT
+   - **Action**: /CRITIQUE, /IMPROVE, /COMPARE, /EXAMPLES
+3. **Generate the optimized prompt**:
+   - Click "Generate Prompt" to combine everything
+   - The result will appear in the preview panel
 
-### Paso 3: Revisión del Prompt Optimizado
-1. **En el panel derecho (Prompt Preview Panel)**, verás:
-   - El prompt optimizado generado en tiempo real
-   - Conteo de tokens de entrada y salida
-   - Indicadores de legibilidad y creatividad
-   - Explicaciones de la configuración aplicada
-2. **Prueba la funcionalidad de copiado**:
-   - Haz clic en el botón "Copy to Clipboard" para copiar el prompt
-   - El botón mostrará "Copied" brevemente cuando se complete
-3. **Revisa los indicadores**:
-   - Legibilidad: Simple, Medio, Complejo
-   - Creatividad: Nivel de originalidad del prompt
-   - Eficiencia: Puntuación general del prompt
+### Step 3: Review Optimized Prompt
+1. **In the right panel (Prompt Preview Panel)**, you'll see:
+   - The real-time generated optimized prompt
+   - Input and output token count
+   - Readability and creativity indicators
+   - Explanations of the applied configuration
+2. **Test the copy functionality**:
+   - Click the "Copy to Clipboard" button to copy the prompt
+   - The button will briefly show "Copied" when completed
+3. **Review the indicators**:
+   - Readability: Simple, Medium, Complex
+   - Creativity: Originality level of the prompt
+   - Efficiency: Overall prompt score
 
-### Paso 4: Análisis de Métricas
-1. **En el panel inferior derecho (Metrics Panel)**, obtén análisis detallados:
-   - **Uso de tokens**: Distribución y optimización
-   - **Evaluación de legibilidad**: Clasificación detallada
-   - **Nivel de creatividad**: Indicador visual
-   - **Puntuación de eficiencia**: Anillo de progreso visual
-   - **Recomendaciones inteligentes**: Sugerencias de mejora
-2. **Muestra/oculta el panel** usando el botón "Hide/Show Metrics" en el encabezado
+### Step 4: Metrics Analysis
+1. **In the bottom right panel (Metrics Panel)**, get detailed analysis:
+   - **Token usage**: Distribution and optimization
+   - **Readability assessment**: Detailed classification
+   - **Creativity level**: Visual indicator
+   - **Efficiency score**: Visual progress ring
+   - **Smart recommendations**: Improvement suggestions
+2. **Show/hide the panel** using the "Hide/Show Metrics" button in the header
 
-### Consejos de Uso Avanzado
-1. **Itera rápidamente**: Cambia parámetros y ve los resultados en tiempo real
-2. **Combina operadores**: Experimenta con diferentes combinaciones para obtener resultados óptimos
-3. **Usa las métricas**: Ajusta tu prompt basándote en las recomendaciones de eficiencia
-4. **Prueba en diferentes dispositivos**: La aplicación es totalmente responsiva
-5. **Copia y pega**: Usa el prompt generado directamente en tu LLM favorito
+### Advanced Usage Tips
+1. **Iterate quickly**: Change parameters and see results in real-time
+2. **Combine operators**: Experiment with different combinations for optimal results
+3. **Use the metrics**: Adjust your prompt based on efficiency recommendations
+4. **Test on different devices**: The application is fully responsive
+5. **Copy and paste**: Use the generated prompt directly in your favorite LLM
 
 ## 📁 Project Structure
 
@@ -273,33 +273,33 @@ The current setup uses CDN versions for development convenience. For production:
 4. **Review metrics** - Use readability and efficiency scores to improve prompts
 5. **Experiment** - Try different combinations of operators and settings
 
-## 📱 Responsive Design Mejorado
+## 📱 Improved Responsive Design
 
-La aplicación cuenta con un diseño responsivo completamente optimizado:
+The application features a fully optimized responsive design:
 
-### Escritorio (Desktop)
-- **Layout de 3 columnas**: LLM Configuration | Preview & Metrics | Prompt Input
-- **Espaciado óptimo**: Gap adaptativo según tamaño de pantalla
-- **Botones de tamaño completo**: Mejor experiencia de usuario
+### Desktop
+- **3-column layout**: LLM Configuration | Preview & Metrics | Prompt Input
+- **Optimal spacing**: Adaptive gap based on screen size
+- **Full-width buttons**: Better user experience
 
-### Tablet y Pantallas Medianas
-- **Transición suave**: Layout se adapta entre 3 y 2 columnas
-- **Espaciado ajustado**: Menor gap para mejor uso del espacio
-- **Elementos compactos**: Textos y botones adaptados
+### Tablet and Medium Screens
+- **Smooth transition**: Layout adapts between 3 and 2 columns
+- **Adjusted spacing**: Smaller gap for better space utilization
+- **Compact elements**: Text and buttons adapted
 
-### Móvil (Mobile)
-- **Layout vertical**: Todos los paneles apilados verticalmente
-- **Header optimizado**: Logo y botones en columna separada
-- **Botones full-width**: Mayor facilidad de toque
-- **Textos ajustados**: Tamaños de fuente reducidos pero legibles
-- **Footer responsive**: Información organizada en columnas
+### Mobile
+- **Vertical layout**: All panels stacked vertically
+- **Optimized header**: Logo and buttons in separate column
+- **Full-width buttons**: Easier touch interaction
+- **Adjusted text**: Reduced font sizes but still readable
+- **Responsive footer**: Information organized in columns
 
-### Mejoras Recientes
-- **Cambio de breakpoint**: De `lg:` a `xl:` para mejor adaptación
-- **Espaciado dinámico**: `gap-4 md:gap-6` para móviles y tablets
-- **Header responsive**: Diseño vertical en móviles con `flex-col`
-- **Footer mejorado**: Contenido adaptable con `flex-wrap`
-- **Botones accesibles**: `w-full` en móviles para mejor usabilidad
+### Recent Improvements
+- **Breakpoint change**: From `lg:` to `xl:` for better adaptation
+- **Dynamic spacing**: `gap-4 md:gap-6` for mobile and tablets
+- **Responsive header**: Vertical design on mobile with `flex-col`
+- **Improved footer**: Adaptable content with `flex-wrap`
+- **Accessible buttons**: `w-full` on mobile for better usability
 
 ## 🔧 Customization
 
@@ -360,20 +360,20 @@ If you have any questions or issues, please open an issue on GitHub.
 
 ## 📝 Recent Updates
 
-### Mejoras de UX y Flujo de Trabajo (Últimas Actualizaciones)
-- **Reordenamiento de paneles**: Nuevo flujo de trabajo lógico:
-  1. Configuraciones LLM
-  2. Redacción del prompt
-  3. Vista del prompt optimizado
-  4. Análisis de métricas
-- **Diseño responsivo mejorado**:
-  - Cambio de breakpoint de `lg:` a `xl:` para mejor adaptación a dispositivos
-  - Header y footer optimizados para móviles con diseño vertical
-  - Botones con `w-full` en móviles para mejor accesibilidad
-  - Espaciado dinámico con `gap-4 md:gap-6`
-- **Experiencia de usuario mejorada**: Los usuarios siguen un flujo natural de configuración → creación → revisión → análisis
+### UX and Workflow Improvements (Recent Updates)
+- **Panel reordering**: New logical workflow:
+  1. LLM Configurations
+  2. Prompt Writing
+  3. Optimized Prompt View
+  4. Metrics Analysis
+- **Improved responsive design**:
+  - Breakpoint change from `lg:` to `xl:` for better device adaptation
+  - Header and footer optimized for mobile with vertical design
+  - Buttons with `w-full` on mobile for better accessibility
+  - Dynamic spacing with `gap-4 md:gap-6`
+- **Enhanced user experience**: Users follow a natural configuration → creation → review → analysis flow
 
-### Mejoras Anteriores
+### Previous Improvements
 - **Code Readability Improvements**:
   - Added comments to `src/App.js` to enhance code readability and maintainability.
 - **Deployed with GitHub Actions 🚀**
