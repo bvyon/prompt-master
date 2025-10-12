@@ -25,7 +25,6 @@ const App = () => {
     });
 
     const [showMetrics, setShowMetrics] = useState(true);
-    const [step, setStep] = useState('configure'); // 'configure' | 'prompt' | 'preview'
     const [optimizedPrompt, setOptimizedPrompt] = useState('');
 
     // Update active operators when checkboxes change
@@ -52,14 +51,11 @@ const App = () => {
         }));
     };
 
-    const proceedToPrompt = () => setStep('prompt');
-
-    // Generate and preview the optimized prompt
-    const generateAndPreviewPrompt = () => {
+    // Generate optimized prompt in real-time
+    useEffect(() => {
         const builtPrompt = promptBuilder.buildOptimizedPrompt(config);
         setOptimizedPrompt(builtPrompt);
-        setStep('preview');
-    };
+    }, [config]);
 
     // Reset configuration to default values
     const resetConfiguration = () => {
@@ -129,16 +125,6 @@ const App = () => {
                             config={config}
                             setConfig={updateConfig}
                         />
-                        {step === 'configure' && (
-                            <div className="hidden md:block mt-4">
-                                <button
-                                    onClick={proceedToPrompt}
-                                    className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base"
-                                >
-                                    Proceed to Prompt →
-                                </button>
-                            </div>
-                        )}
                     </div>
 
                     {/* Middle Column - Prompt Input */}
@@ -149,8 +135,8 @@ const App = () => {
                             activeOperators={config.activeOperators}
                             setActiveOperators={(activeOperators) => updateConfig({ activeOperators })}
                             operators={operators}
-                            disabled={step !== 'prompt'}
-                            onGenerate={generateAndPreviewPrompt}
+                            disabled={false} // Siempre activo
+                            onGenerate={() => {}} // Función vacía, ya no se necesita
                         />
                     </div>
 
@@ -176,19 +162,6 @@ const App = () => {
                         </AnimatePresence>
                     </div>
                 </div>
-
-                {/* Mobile Action Button - Always visible on mobile */}
-                <div className="md:hidden fixed bottom-6 left-4 right-4 z-10">
-                    {step === 'configure' && (
-                        <button
-                            onClick={proceedToPrompt}
-                            className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium shadow-lg"
-                        >
-                            Proceed to Prompt →
-                        </button>
-                    )}
-                </div>
-
             </main>
 
             {/* Footer */}
