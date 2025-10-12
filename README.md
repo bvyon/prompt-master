@@ -263,4 +263,8 @@ If you have any questions or issues, please open an issue on GitHub.
 
 **Built with ❤️ using React, Tailwind CSS, and Framer Motion**
 
+## 📝 Recent Updates
+
+- **Code Readability Improvements**:
+  - Added comments to `src/App.js` to enhance code readability and maintainability.
 **Deployed with GitHub Actions 🚀**
