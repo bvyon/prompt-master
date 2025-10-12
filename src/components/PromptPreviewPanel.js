@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
 import { getColorClasses } from '../utils/colorClasses';
 
 const PromptPreviewPanel = ({ 
     config, 
-    operators 
+    operators,
+    optimizedPrompt: optimizedPromptProp = ''
 }) => {
     const [copied, setCopied] = useState(false);
     const [showExplanation, setShowExplanation] = useState(false);
 
-    const optimizedPrompt = promptBuilder.buildOptimizedPrompt(config);
-    const inputTokens = promptBuilder.estimateTokens(config.prompt);
+    const optimizedPrompt = useMemo(() => optimizedPromptProp || promptBuilder.buildOptimizedPrompt(config), [optimizedPromptProp, config]);
+    const inputTokens = useMemo(() => promptBuilder.estimateTokens(config.prompt), [config.prompt]);
     const outputTokens = config.maxTokens || 1000;
-    const readability = promptBuilder.calculateReadabilityLevel(config.prompt);
-    const creativity = promptBuilder.calculateCreativity(config.temperature, config.top_p);
+    const readability = useMemo(() => promptBuilder.calculateReadabilityLevel(config.prompt), [config.prompt]);
+    const creativity = useMemo(() => promptBuilder.calculateCreativity(config.temperature, config.top_p), [config.temperature, config.top_p]);
 
     const copyToClipboard = async () => {
         try {
-            await navigator.clipboard.writeText(optimizedPrompt);
+            const toCopy = optimizedPrompt;
+            await navigator.clipboard.writeText(toCopy);
             setCopied(true);
             // disable for a short period to avoid repeated clicks
             setTimeout(() => setCopied(false), 1500);

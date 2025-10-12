@@ -19,25 +19,17 @@ const LLMConfigurationPanel = ({
         }));
     };
 
+    // `setConfig` is a handler passed from parent that merges with current config.
     const handleSliderChange = (field, value) => {
-        setConfig(prev => ({
-            ...prev,
-            [field]: parseFloat(value)
-        }));
+        setConfig({ [field]: parseFloat(value) });
     };
 
     const handleInputChange = (field, value) => {
-        setConfig(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setConfig({ [field]: value });
     };
 
     const handleCheckboxChange = (field) => {
-        setConfig(prev => ({
-            ...prev,
-            [field]: !prev[field]
-        }));
+        setConfig({ [field]: !config[field] });
     };
 
     const roles = [

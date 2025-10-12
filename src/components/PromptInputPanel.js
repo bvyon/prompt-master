@@ -8,7 +8,9 @@ const PromptInputPanel = ({
     setPrompt, 
     activeOperators, 
     setActiveOperators,
-    operators 
+    operators,
+    disabled = false,
+    onGenerate = null
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -29,14 +31,16 @@ const PromptInputPanel = ({
         return filtered;
     }, [searchTerm, selectedCategory, operators]);
 
-    const categories = ['all', ...new Set(operators.map(op => op.category))];
+    const categories = useMemo(() => {
+        if (!operators || operators.length === 0) return ['all'];
+        return ['all', ...new Set(operators.map(op => op.category))];
+    }, [operators]);
 
+    // `setActiveOperators` is a prop (handler) provided by parent; always call it with the new array
     const toggleOperator = (operator) => {
-        setActiveOperators(prev => 
-            prev.includes(operator) 
-                ? prev.filter(op => op !== operator)
-                : [...prev, operator]
-        );
+        const isActive = activeOperators.includes(operator);
+        const next = isActive ? activeOperators.filter(op => op !== operator) : [...activeOperators, operator];
+        setActiveOperators(next);
     };
 
     const copyToClipboard = (text) => {
@@ -67,7 +71,8 @@ const PromptInputPanel = ({
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter your prompt here..."
-                    className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    disabled={disabled}
+                    className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-60"
                 />
             </div>
 
@@ -101,23 +106,22 @@ const PromptInputPanel = ({
                 <div className="flex flex-wrap gap-2 mb-3">
                     {['/ELI5', '/STEP-BY-STEP', '/EXEC SUMMARY', '/CHAIN OF THOUGHT'].map(op => {
                         const operator = promptBuilder.getOperatorByName(operators, op);
-                        return operator ? (() => {
-                            const color = getColorClasses(operator.color);
-                            const activeClasses = `${color.bgSolid} ${color.textSolid}`;
-                            return (
-                                <button
-                                    key={op}
-                                    onClick={() => toggleOperator(op)}
-                                    className={`operator-badge px-3 py-1 rounded-full text-xs font-medium ${
-                                        activeOperators.includes(op)
-                                            ? activeClasses
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                >
-                                    {op}
-                                </button>
-                            );
-                        })() : null;
+                        if (!operator) return null;
+                        const color = getColorClasses(operator.color);
+                        return (
+                            <button
+                                key={op}
+                                onClick={() => !disabled && toggleOperator(op)}
+                                disabled={disabled}
+                                className={`operator-badge px-3 py-1 rounded-full text-xs font-medium ${
+                                    activeOperators.includes(op)
+                                        ? `${color.bgSolid} ${color.textSolid}`
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            >
+                                {op}
+                            </button>
+                        );
                     })}
                 </div>
             </div>
@@ -126,38 +130,45 @@ const PromptInputPanel = ({
             <div className="flex-1 overflow-y-auto">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">All Operators</h3>
                 <div className="grid grid-cols-1 gap-2 max-h-64 sm:max-h-80 md:max-h-96 overflow-y-auto pr-2">
-                    {filteredOperators.map(operator => (
-                        <motion.div
-                            key={operator.operator}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <button
-                                onClick={() => toggleOperator(operator.operator)}
-                                className={`w-full text-left p-3 rounded-lg border transition-all ${
-                                        activeOperators.includes(operator.operator)
-                                            ? `${getColorClasses(operator.color).border} ${getColorClasses(operator.color).bg}`
-                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                    }`}
+                    {filteredOperators.length === 0 && (
+                        <div className="p-4 text-sm text-gray-500">No operators match your filters. Try clearing the search or selecting a different category.</div>
+                    )}
+                    {filteredOperators.map(operator => {
+                        const classes = getColorClasses(operator.color);
+                        return (
+                            <motion.div
+                                key={operator.operator}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
-                                <div className="flex items-center justify-between">
-                                    <span className={`font-medium ${
+                                <button
+                                    onClick={() => !disabled && toggleOperator(operator.operator)}
+                                    disabled={disabled}
+                                    className={`w-full text-left p-3 rounded-lg border transition-all ${
                                         activeOperators.includes(operator.operator)
-                                            ? getColorClasses(operator.color).text
-                                            : 'text-gray-800'
-                                    }`}>
-                                        {operator.operator}
-                                    </span>
-                                    {activeOperators.includes(operator.operator) && (
-                                        <i className="fas fa-check text-xs"></i>
-                                    )}
-                                </div>
-                                <p className="text-xs text-gray-600 mt-1">
-                                    {operator.description}
-                                </p>
-                            </button>
-                        </motion.div>
-                    ))}
+                                            ? `${classes.border} ${classes.bg}`
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                    } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className={`font-medium ${
+                                            activeOperators.includes(operator.operator)
+                                                ? classes.text
+                                                : 'text-gray-800'
+                                        }`}>
+                                            {operator.operator}
+                                        </span>
+                                        {activeOperators.includes(operator.operator) && (
+                                            <i className="fas fa-check text-xs"></i>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                        {operator.description}
+                                    </p>
+                                </button>
+                            </motion.div>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -176,18 +187,30 @@ const PromptInputPanel = ({
                     <div className="flex flex-wrap gap-1">
                         {activeOperators.map(op => {
                             const operator = promptBuilder.getOperatorByName(operators, op);
-                            return operator ? (
+                            if (!operator) return null;
+                            const classes = getColorClasses(operator.color);
+                            // Use the mapped bg and text classes instead of dynamic template strings
+                            return (
                                 <span
                                     key={op}
-                                    className={`px-2 py-1 rounded text-xs font-medium bg-${operator.color}-100 text-${operator.color}-800`}
+                                    className={`px-2 py-1 rounded text-xs font-medium ${classes.bg} ${classes.text}`}
                                 >
                                     {op}
                                 </span>
-                            ) : null;
+                            );
                         })}
                     </div>
                 </div>
             )}
+            <div className="mt-4">
+                <button
+                    onClick={() => onGenerate && onGenerate()}
+                    disabled={disabled}
+                    className={`w-full px-4 py-2 rounded-lg text-white ${disabled ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                >
+                    Generate Prompt
+                </button>
+            </div>
         </motion.div>
     );
 };

@@ -25,7 +25,10 @@ const App = () => {
     });
 
     const [showMetrics, setShowMetrics] = useState(true);
+    const [step, setStep] = useState('configure'); // 'configure' | 'prompt' | 'preview'
+    const [optimizedPrompt, setOptimizedPrompt] = useState('');
 
+    // Update active operators when checkboxes change
     // Update active operators when checkboxes change
     useEffect(() => {
         const newActiveOperators = [];
@@ -41,14 +44,25 @@ const App = () => {
         }));
     }, [config.chainOfThought, config.reflectiveMode, config.noAutopilot, config.guardrail]);
 
-    const handleConfigChange = (newConfig) => {
+    // Update configuration state with new values
+    const updateConfig = (newConfig) => {
         setConfig(prev => ({
             ...prev,
             ...newConfig
         }));
     };
 
-    const resetAll = () => {
+    const proceedToPrompt = () => setStep('prompt');
+
+    // Generate and preview the optimized prompt
+    const generateAndPreviewPrompt = () => {
+        const builtPrompt = promptBuilder.buildOptimizedPrompt(config);
+        setOptimizedPrompt(builtPrompt);
+        setStep('preview');
+    };
+
+    // Reset configuration to default values
+    const resetConfiguration = () => {
         setConfig({
             prompt: '',
             activeOperators: [],
@@ -95,7 +109,7 @@ const App = () => {
                                 {showMetrics ? 'Hide' : 'Show'} Metrics
                             </button>
                             <button
-                                onClick={resetAll}
+                                onClick={resetConfiguration}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm flex items-center gap-2"
                             >
                                 <i className="fas fa-undo"></i>
@@ -113,10 +127,12 @@ const App = () => {
                     <div className="lg:col-span-1">
                         <PromptInputPanel
                             prompt={config.prompt}
-                            setPrompt={(prompt) => handleConfigChange({ prompt })}
+                            setPrompt={(prompt) => updateConfig({ prompt })}
                             activeOperators={config.activeOperators}
-                            setActiveOperators={(activeOperators) => handleConfigChange({ activeOperators })}
+                            setActiveOperators={(activeOperators) => updateConfig({ activeOperators })}
                             operators={operators}
+                            disabled={step !== 'prompt'}
+                            onGenerate={generateAndPreviewPrompt}
                         />
                     </div>
 
@@ -124,8 +140,13 @@ const App = () => {
                     <div className="lg:col-span-1">
                         <LLMConfigurationPanel
                             config={config}
-                            setConfig={handleConfigChange}
+                            setConfig={updateConfig}
                         />
+                        {step === 'configure' && (
+                            <div className="mt-4">
+                                <button onClick={proceedToPrompt} className="px-4 py-2 bg-blue-500 text-white rounded-lg">Proceed to Prompt</button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Column - Preview and Metrics */}
@@ -133,6 +154,7 @@ const App = () => {
                         <PromptPreviewPanel
                             config={config}
                             operators={operators}
+                            optimizedPrompt={optimizedPrompt}
                         />
                         
                         <AnimatePresence>
