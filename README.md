@@ -1,6 +1,6 @@
 # Prompt Master
 
-A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview and intelligent metrics.
+A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview, intelligent metrics, and AI-powered enhancement using Google's Gemini API.
 
 ## 🚀 Quick Start
 
@@ -38,7 +38,6 @@ You can also open `public/index.html` directly in your browser, but this may sho
 - **Advanced Settings**: Role, Tone, Audience, Format dropdowns
 - **Safety Features**: Chain of Thought, Reflective Mode, No Autopilot, Guardrail checkboxes
 - Collapsible sections for organized interface
-- "Proceed to Prompt" button to advance to the next step
 
 ### 2. Prompt Input Panel (Second)
 - Textarea for raw prompt input
@@ -46,8 +45,8 @@ You can also open `public/index.html` directly in your browser, but this may sho
 - Search and filter functionality
 - Quick operator shortcuts
 - Color-coded operator badges
-- Only active after configuring parameters
-- "Generate Prompt" button to create the optimized prompt
+- **AI-Prompt Enhancement**: One-click prompt improvement with Google's Gemini AI
+- Manual enhancement trigger with loading states and error handling
 
 ### 3. Prompt Preview Panel (Third)
 - Real-time optimized prompt generation
@@ -55,6 +54,7 @@ You can also open `public/index.html` directly in your browser, but this may sho
 - Configuration explanations
 - Token counting (input/output)
 - Readability and creativity indicators
+- **Enhanced Prompt Badge**: Visual indicator for AI-optimized prompts
 
 ### 4. Metrics Panel (Fourth)
 - Token usage analysis
@@ -66,10 +66,35 @@ You can also open `public/index.html` directly in your browser, but this may sho
 
 Note: Color badges are now driven by a small utility (`src/utils/colorClasses.js`) that maps operator color keys to static Tailwind class names. This avoids missing CSS classes in production builds (Tailwind needs static class names to include them in the final CSS).
 
+## 🤖 Gemini AI Integration
+
+### AI-Powered Prompt Enhancement
+- **Google Gemini 2.0 Flash** integration for advanced prompt optimization
+- **Manual enhancement trigger** - Enhance prompts on-demand with a single click
+- **Smart system prompts** - Specialized prompt engineering guidance
+- **Error handling** - Comprehensive error messages and recovery
+- **Loading states** - Visual feedback during enhancement process
+
+### Setup Instructions
+1. **Get your Gemini API key** from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. **Configure environment variable**:
+   ```bash
+   echo "REACT_APP_GEMINI_API_KEY=your_api_key_here" >> .env
+   ```
+3. **Restart the application** for changes to take effect
+
+### Usage
+1. **Write and configure** your prompt with desired settings
+2. **Click "Enhance with Gemini AI"** to improve your prompt
+3. **Review the enhanced version** in the preview panel with the "Enhanced" badge
+
 ## 🛠️ Technical Stack
 
 - **React 18** - UI framework
 - **Tailwind CSS** - Styling
+- **Framer Motion** - Animations
+- **Font Awesome** - Icons
+- **Google Gemini API** - AI-powered enhancement
 ## ✅ Recent fixes and improvements
 
 - Global CSS safety fixes (applied to `src/index.css`):
@@ -99,6 +124,7 @@ These changes were applied to improve behavior when deployed to GitHub Pages and
 - The mapping utility for color classes ensures classes are present in the final CSS; if you add new operator colors, also add entries to `src/utils/colorClasses.js`.
 - **Framer Motion** - Animations
 - **Font Awesome** - Icons
+- **Google Gemini API** - AI-powered enhancement
 - **GitHub Actions** - Automated deployment
 
 ## 📋 Step-by-Step Usage Guide
@@ -356,9 +382,18 @@ If you have any questions or issues, please open an issue on GitHub.
 
 ---
 
-**Built with ❤️ using React, Tailwind CSS, and Framer Motion**
+**Built with ❤️ using React, Tailwind CSS, Framer Motion, and Google Gemini AI**
 
 ## 📝 Recent Updates
+
+### 🤖 Gemini AI Integration (Latest)
+- **AI-powered prompt enhancement** using Google's Gemini 2.0 Flash model
+- **Manual enhancement button** for on-demand prompt improvement
+- **Enhanced prompt preview** with visual indicators
+- **Comprehensive error handling** and loading states
+- **Secure API key management** with environment variables
+
+### Previous Improvements
 
 ### UX and Workflow Improvements (Recent Updates)
 - **Panel reordering**: New logical workflow:

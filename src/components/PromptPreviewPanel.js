@@ -3,15 +3,18 @@ import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
 import { getColorClasses } from '../utils/colorClasses';
 
-const PromptPreviewPanel = ({ 
-    config, 
+const PromptPreviewPanel = ({
+    config,
     operators,
-    optimizedPrompt: optimizedPromptProp = ''
+    optimizedPrompt: optimizedPromptProp = '',
+    isEnhancing = false,
+    enhancementError = null
 }) => {
     const [copied, setCopied] = useState(false);
     const [showExplanation, setShowExplanation] = useState(false);
 
     const optimizedPrompt = useMemo(() => optimizedPromptProp || promptBuilder.buildOptimizedPrompt(config), [optimizedPromptProp, config]);
+    const hasEnhancement = useMemo(() => config.enhancedPrompt && config.enhancedPrompt !== config.prompt, [config.enhancedPrompt, config.prompt]);
     const inputTokens = useMemo(() => promptBuilder.estimateTokens(config.prompt), [config.prompt]);
     const outputTokens = config.maxTokens || 1000;
     const readability = useMemo(() => promptBuilder.calculateReadabilityLevel(config.prompt), [config.prompt]);
@@ -94,7 +97,7 @@ const PromptPreviewPanel = ({
     };
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col"
@@ -106,12 +109,27 @@ const PromptPreviewPanel = ({
                             <i className="fas fa-eye text-green-500 mr-2"></i>
                             Optimized Prompt
                         </h2>
-                        <p className="text-gray-600">Real-time preview of your enhanced prompt</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-gray-600">Real-time preview of your enhanced prompt</p>
+                            {hasEnhancement && (
+                                <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
+                                    <i className="fas fa-magic mr-1"></i>
+                                    Enhanced
+                                </span>
+                            )}
+                            {isEnhancing && (
+                                <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">
+                                    <i className="fas fa-spinner fa-spin mr-1"></i>
+                                    Enhancing...
+                                </span>
+                            )}
+                        </div>
                     </div>
                     <div className="flex gap-2">
                         <button
                             onClick={copyToClipboard}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isEnhancing}
                         >
                             <i className={`fas ${copied ? 'fa-check' : 'fa-copy'}`}></i>
                             {copied ? 'Copied!' : 'Copy'}
@@ -125,6 +143,15 @@ const PromptPreviewPanel = ({
                         </button>
                     </div>
                 </div>
+                
+                {enhancementError && (
+                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-center text-red-700 text-sm">
+                            <i className="fas fa-exclamation-triangle mr-2"></i>
+                            Enhancement Error: {enhancementError}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Metrics */}

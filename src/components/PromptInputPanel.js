@@ -3,14 +3,16 @@ import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
 import { getColorClasses } from '../utils/colorClasses';
 
-const PromptInputPanel = ({ 
-    prompt, 
-    setPrompt, 
-    activeOperators, 
+const PromptInputPanel = ({
+    prompt,
+    setPrompt,
+    activeOperators,
     setActiveOperators,
     operators,
     disabled = false,
-    onGenerate = null
+    onGenerate = null,
+    isEnhancing,
+    enhancementError
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -202,6 +204,30 @@ const PromptInputPanel = ({
                     </div>
                 </div>
             )}
+            
+            {/* Gemini Enhancement Button */}
+            <div className="mt-4">
+                <button
+                    onClick={() => {
+                        // Trigger enhancement from parent
+                        const event = new CustomEvent('enhancePrompt');
+                        window.dispatchEvent(event);
+                    }}
+                    disabled={!prompt || disabled || isEnhancing}
+                    className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <i className={`fas ${isEnhancing ? 'fa-spinner fa-spin' : 'fa-magic'}`}></i>
+                    {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini AI'}
+                </button>
+                
+                {enhancementError && (
+                    <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                        <i className="fas fa-exclamation-triangle mr-1"></i>
+                        Enhancement failed: {enhancementError}
+                    </div>
+                )}
+            </div>
+            
             <div className="mt-4">
                 <button
                     onClick={() => onGenerate && onGenerate()}

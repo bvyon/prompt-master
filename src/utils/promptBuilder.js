@@ -25,16 +25,17 @@ export function calculateCreativity(temperature, top_p) {
 
 // Build the optimized prompt based on user selections
 export function buildOptimizedPrompt(config) {
-    const { 
-        prompt, 
-        activeOperators, 
-        temperature, 
-        top_p, 
-        maxTokens, 
-        role, 
-        tone, 
-        audience, 
-        format 
+    const {
+        prompt,
+        activeOperators,
+        temperature,
+        top_p,
+        maxTokens,
+        role,
+        tone,
+        audience,
+        format,
+        enhancedPrompt
     } = config;
     
     let optimizedPrompt = '';
@@ -71,10 +72,37 @@ export function buildOptimizedPrompt(config) {
         optimizedPrompt += `/max_tokens=${maxTokens}\n`;
     }
     
-    // Add the actual prompt
-    optimizedPrompt += `PROMPT: ${prompt}`;
+    // Add the actual prompt (use enhanced prompt if available)
+    const finalPrompt = enhancedPrompt || prompt;
+    optimizedPrompt += `PROMPT: ${finalPrompt}`;
     
     return optimizedPrompt;
+}
+
+// Build prompt for Gemini enhancement (without operators and parameters)
+export function buildPromptForGeminiEnhancement(config) {
+    const {
+        prompt,
+        role,
+        tone,
+        audience,
+        format
+    } = config;
+    
+    let basePrompt = prompt;
+    
+    // Add context if available (this helps Gemini understand the enhancement context)
+    if (role || tone || audience || format) {
+        let context = '';
+        if (role) context += `Role: ${role}. `;
+        if (tone) context += `Tone: ${tone}. `;
+        if (audience) context += `Audience: ${audience}. `;
+        if (format) context += `Format: ${format}. `;
+        
+        basePrompt = `Context: ${context}\n\nOriginal Prompt: ${prompt}`;
+    }
+    
+    return basePrompt;
 }
 
 // Get operator by name

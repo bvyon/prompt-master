@@ -6,6 +6,7 @@ import PromptPreviewPanel from './components/PromptPreviewPanel';
 import MetricsPanel from './components/MetricsPanel';
 import operators from './operators.json';
 import * as promptBuilder from './utils/promptBuilder';
+import { useGeminiEnhancement } from './utils/geminiService';
 
 const App = () => {
     const [config, setConfig] = useState({
@@ -21,11 +22,15 @@ const App = () => {
         chainOfThought: false,
         reflectiveMode: false,
         noAutopilot: false,
-        guardrail: false
+        guardrail: false,
+        enhancedPrompt: ''
     });
 
     const [showMetrics, setShowMetrics] = useState(true);
     const [optimizedPrompt, setOptimizedPrompt] = useState('');
+    
+    // Gemini enhancement hook
+    const { enhancePrompt, isLoading: isEnhancing, error: enhancementError } = useGeminiEnhancement();
 
     // Update active operators when checkboxes change
     // Update active operators when checkboxes change
@@ -57,6 +62,8 @@ const App = () => {
         setOptimizedPrompt(builtPrompt);
     }, [config]);
 
+    // No auto-enhancement - only manual enhancement through button
+
     // Reset configuration to default values
     const resetConfiguration = () => {
         setConfig({
@@ -72,8 +79,22 @@ const App = () => {
             chainOfThought: false,
             reflectiveMode: false,
             noAutopilot: false,
-            guardrail: false
+            guardrail: false,
+            enhancedPrompt: ''
         });
+    };
+
+    // Manual enhancement trigger
+    const handleEnhancePrompt = async () => {
+        if (!config.prompt || config.prompt.trim() === '') {
+            return;
+        }
+        
+        const promptForEnhancement = promptBuilder.buildPromptForGeminiEnhancement(config);
+        const enhanced = await enhancePrompt(promptForEnhancement);
+        if (enhanced) {
+            setConfig(prev => ({ ...prev, enhancedPrompt: enhanced }));
+        }
     };
 
     return (
@@ -103,6 +124,14 @@ const App = () => {
                             >
                                 <i className="fas fa-chart-bar mr-2"></i>
                                 {showMetrics ? 'Hide' : 'Show'} Metrics
+                            </button>
+                            <button
+                                onClick={handleEnhancePrompt}
+                                disabled={isEnhancing || !config.prompt}
+                                className="px-3 sm:px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-xs sm:text-sm flex items-center gap-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <i className={`fas ${isEnhancing ? 'fa-spinner fa-spin' : 'fa-magic'}`}></i>
+                                {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini'}
                             </button>
                             <button
                                 onClick={resetConfiguration}
@@ -137,6 +166,8 @@ const App = () => {
                             operators={operators}
                             disabled={false} // Siempre activo
                             onGenerate={() => {}} // Función vacía, ya no se necesita
+                            isEnhancing={isEnhancing}
+                            enhancementError={enhancementError}
                         />
                     </div>
 
@@ -146,6 +177,8 @@ const App = () => {
                             config={config}
                             operators={operators}
                             optimizedPrompt={optimizedPrompt}
+                            isEnhancing={isEnhancing}
+                            enhancementError={enhancementError}
                         />
                         
                         <AnimatePresence>
