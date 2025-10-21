@@ -14,6 +14,7 @@ export const useGeminiEnhancement = () => {
     useEffect(() => {
         // Load API key from environment variable
         const envApiKey = process.env.REACT_APP_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+        console.log('API Key status:', envApiKey ? 'loaded' : 'not loaded');
         setApiKey(envApiKey);
     }, []);
 
