@@ -4,7 +4,33 @@ A comprehensive web application for optimizing prompts for large language models
 
 ## 🚀 Quick Start
 
-### Running the Application
+### Option 1: Use Executable Scripts (Recommended)
+
+#### For macOS:
+```bash
+# Clone and setup
+git clone https://github.com/bvyon/prompt-master.git
+cd prompt-master
+
+# Configure your Gemini API key
+./configure_api.sh
+
+# Start with one click
+./start_app.command
+```
+
+#### For Windows:
+```bash
+# Clone and setup
+git clone https://github.com/bvyon/prompt-master.git
+cd prompt-master
+
+# Configure your Gemini API key (manually edit .env.local)
+# Start with one click
+start_app.bat
+```
+
+### Option 2: Traditional Setup
 
 1. **Clone the repository**:
    ```bash
@@ -17,14 +43,21 @@ A comprehensive web application for optimizing prompts for large language models
    npm install
    ```
 
-3. **Start the development server**:
+3. **Configure your Gemini API key**:
+   ```bash
+   # Get your API key from: https://makersuite.google.com/app/apikey
+   cp .env .env.local
+   # Edit .env.local and add your API key
+   ```
+
+4. **Start the development server**:
    ```bash
    npm start
    ```
 
-4. **Open your browser** and navigate to:
+5. **Open your browser** and navigate to:
    ```
-   http://localhost:3000
+   http://localhost:3000/prompt-master
    ```
 
 ### Alternative: Direct File Access
@@ -75,18 +108,43 @@ Note: Color badges are now driven by a small utility (`src/utils/colorClasses.js
 - **Error handling** - Comprehensive error messages and recovery
 - **Loading states** - Visual feedback during enhancement process
 
-### Setup Instructions
+### 🔒 API Key Security & Setup
+
+#### **For Development (Local Setup):**
 1. **Get your Gemini API key** from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. **Configure environment variable**:
+2. **Use the automatic configuration script**:
    ```bash
-   echo "REACT_APP_GEMINI_API_KEY=your_api_key_here" >> .env
+   ./configure_api.sh
    ```
-3. **Restart the application** for changes to take effect
+   This will create and configure your `.env.local` file securely.
+
+3. **Manual configuration**:
+   ```bash
+   cp .env .env.local
+   # Edit .env.local and add: REACT_APP_GEMINI_API_KEY=your_api_key_here
+   ```
+
+#### **For Production (GitHub Pages):**
+1. **Add your API key as a GitHub Secret**:
+   - Go to your repository → Settings → Secrets and variables → Actions
+   - Create a secret named `REACT_APP_GEMINI_API_KEY` with your API key
+   - The deployment will automatically use this secret
+
+### 📚 Setup Documentation
+- See [`GEMINI_LOCAL_SETUP.md`](GEMINI_LOCAL_SETUP.md) for detailed setup instructions
+- See [`SETUP.md`](SETUP.md) for advanced configuration options
+- See [`EXECUTABLE_GUIDE.md`](EXECUTABLE_GUIDE.md) for one-click startup
 
 ### Usage
 1. **Write and configure** your prompt with desired settings
 2. **Click "Enhance with Gemini AI"** to improve your prompt
 3. **Review the enhanced version** in the preview panel with the "Enhanced" badge
+
+### ⚠️ Security Notes
+- **Never commit your `.env` file to Git** (it's in `.gitignore`)
+- **Your API key is never exposed** in the codebase
+- **GitHub Secrets** are used for production deployment
+- **Local development** uses `.env.local` which is never shared
 
 ## 🛠️ Technical Stack
 
@@ -211,7 +269,9 @@ These changes were applied to improve behavior when deployed to GitHub Pages and
 │   │   ├── PromptPreviewPanel.js
 │   │   └── MetricsPanel.js
 │   ├── utils/             # Utility functions
-│   │   └── promptBuilder.js
+│   │   ├── promptBuilder.js
+│   │   ├── geminiService.js
+│   │   └── colorClasses.js
 │   ├── operators.json     # Operator definitions
 │   ├── index.js           # Entry point
 │   └── index.css          # Global styles
@@ -222,8 +282,38 @@ These changes were applied to improve behavior when deployed to GitHub Pages and
 │   └── workflows/
 │       └── deploy.yml     # Deployment workflow
 ├── README.md              # Project documentation
-└── DEPLOYMENT.md          # Deployment guide
+├── DEPLOYMENT.md          # Deployment guide
+├── SETUP.md               # Setup and configuration guide
+├── QUICK_START.md         # Quick start guide for developers
+├── GEMINI_LOCAL_SETUP.md  # Gemini API local setup guide
+├── EXECUTABLE_GUIDE.md   # One-click startup guide
+├── configure_api.sh       # API key configuration script (macOS/Linux)
+├── start_app.command      # One-click startup script (macOS)
+├── start_app.bat          # One-click startup script (Windows)
+└── INSTALL_APP.sh         # Full installation script (macOS)
 ```
+
+## 🚀 One-Click Startup
+
+### Executable Scripts
+- **`start_app.command`** (macOS) - Start the application with one click
+- **`start_app.bat`** (Windows) - Start the application with one click
+- **`INSTALL_APP.sh`** (macOS) - Create desktop shortcuts and dock integration
+
+### Configuration Scripts
+- **`configure_api.sh`** - Automatically configure your Gemini API key
+
+### Usage
+```bash
+# Quick setup and start
+./configure_api.sh
+./start_app.command
+
+# Or install for easy access
+./INSTALL_APP.sh
+```
+
+See [`EXECUTABLE_GUIDE.md`](EXECUTABLE_GUIDE.md) for complete details.
 
 ## 🔧 Development Setup
 
@@ -386,16 +476,38 @@ If you have any questions or issues, please open an issue on GitHub.
 
 ## 📝 Recent Updates
 
-### 🤖 Gemini AI Integration (Latest)
+### 🚀 One-Click Startup Scripts (Latest)
+- **Executable scripts** for easy application startup:
+  - `start_app.command` (macOS) - Start with one click
+  - `start_app.bat` (Windows) - Start with one click
+  - `INSTALL_APP.sh` (macOS) - Create desktop shortcuts and dock integration
+- **Automatic API key configuration** with `configure_api.sh`
+- **Complete documentation** with [`EXECUTABLE_GUIDE.md`](EXECUTABLE_GUIDE.md)
+- **No more need to open editor** - just double-click and start!
+
+### 🔒 Enhanced Security & Setup
+- **Comprehensive API key management** with detailed setup guides
+- **Local development** with `.env.local` (never shared)
+- **Production deployment** with GitHub Secrets
+- **Detailed security documentation** in [`GEMINI_LOCAL_SETUP.md`](GEMINI_LOCAL_SETUP.md)
+- **Automated configuration scripts** for easy setup
+
+### 🤖 Gemini AI Integration
 - **AI-powered prompt enhancement** using Google's Gemini 2.0 Flash model
 - **Manual enhancement button** for on-demand prompt improvement
 - **Enhanced prompt preview** with visual indicators
 - **Comprehensive error handling** and loading states
 - **Secure API key management** with environment variables
 
+### 📚 Enhanced Documentation
+- **QUICK_START.md** - Quick reference for developers
+- **SETUP.md** - Advanced configuration options
+- **GEMINI_LOCAL_SETUP.md** - Detailed Gemini API setup
+- **EXECUTABLE_GUIDE.md** - Complete one-click startup guide
+
 ### Previous Improvements
 
-### UX and Workflow Improvements (Recent Updates)
+### UX and Workflow Improvements
 - **Panel reordering**: New logical workflow:
   1. LLM Configurations
   2. Prompt Writing
