@@ -1,21 +1,10 @@
 // Gemini API Service for Prompt Enhancement
 import { useState, useEffect } from 'react';
 
-// System prompt for Gemini 2.5 Pro prompt enhancement
-const SYSTEM_PROMPT = `You are an expert prompt engineering assistant specializing in enhancing and optimizing prompts for large language models. Your task is to analyze and improve user prompts to make them more effective, clear, and structured.
+// System prompt for Gemini 2.5 Pro prompt enhancement - shortened to save tokens
+const SYSTEM_PROMPT = `You are an expert prompt engineering assistant. Enhance the following prompt to make it more effective, clear, and structured. Maintain the original intent and language, add clarity where needed, and keep it concise. Return only the enhanced prompt without any explanation or markdown formatting.`;
 
-When enhancing prompts, follow these guidelines:
-1. Maintain the original intent and meaning of the user's prompt
-2. Add structure and clarity where needed
-3. Suggest appropriate operators or formatting if beneficial
-4. Keep the enhanced prompt concise but comprehensive
-5. Ensure the prompt is well-organized and easy for an LLM to understand
-6. Consider the context and purpose of the prompt
-7. Add relevant context if it would improve the prompt's effectiveness
-
-Return only the enhanced prompt without any additional explanation or commentary. Do not include any markdown formatting, just the plain enhanced prompt text.`;
-
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent';
 
 export const useGeminiEnhancement = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -43,66 +32,215 @@ export const useGeminiEnhancement = () => {
         setError(null);
 
         try {
-            const response = await fetch(
-                `${GEMINI_API_URL}?key=${apiKey}`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
+            console.log('Sending request to Gemini API with prompt:', originalPrompt.substring(0, 100) + '...');
+            console.log('Using API URL:', GEMINI_API_URL);
+            
+            let response;
+            let apiUsed = GEMINI_API_URL;
+            
+            try {
+                response = await fetch(
+                    `${GEMINI_API_URL}?key=${apiKey}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                role: "user",
+                                parts: [{ text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${originalPrompt}` }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.3,
+                                topP: 0.8,
+                                topK: 40,
+                                maxOutputTokens: 4096,
+                                responseMimeType: "text/plain",
+                            },
+                            safetySettings: [
                                 {
-                                    text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${originalPrompt}`
+                                    category: "HARM_CATEGORY_HARASSMENT",
+                                    threshold: "BLOCK_NONE"
+                                },
+                                {
+                                    category: "HARM_CATEGORY_HATE_SPEECH",
+                                    threshold: "BLOCK_NONE"
+                                },
+                                {
+                                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                    threshold: "BLOCK_NONE"
+                                },
+                                {
+                                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                                    threshold: "BLOCK_NONE"
                                 }
                             ]
-                        }],
-                        generationConfig: {
-                            temperature: 0.3,
-                            topP: 0.8,
-                            topK: 40,
-                            maxOutputTokens: 1024,
+                        })
+                    }
+                );
+            } catch (fetchError) {
+                console.log('First API attempt failed, trying fallback...');
+                // Try with gemini-2.0-pro as fallback
+                const fallbackUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-pro:generateContent';
+                apiUsed = fallbackUrl;
+                response = await fetch(
+                    `${fallbackUrl}?key=${apiKey}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
                         },
-                        safetySettings: [
-                            {
-                                category: "HARM_CATEGORY_HARASSMENT",
-                                threshold: "BLOCK_NONE"
+                        body: JSON.stringify({
+                            contents: [{
+                                role: "user",
+                                parts: [{ text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${originalPrompt}` }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.3,
+                                topP: 0.8,
+                                topK: 40,
+                                maxOutputTokens: 4096,
+                                responseMimeType: "text/plain",
                             },
-                            {
-                                category: "HARM_CATEGORY_HATE_SPEECH", 
-                                threshold: "BLOCK_NONE"
-                            },
-                            {
-                                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                                threshold: "BLOCK_NONE"
-                            },
-                            {
-                                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                                threshold: "BLOCK_NONE"
-                            }
-                        ]
-                    })
-                }
-            );
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Failed to enhance prompt');
+                            safetySettings: [
+                                {
+                                    category: "HARM_CATEGORY_HARASSMENT",
+                                    threshold: "BLOCK_NONE"
+                                },
+                                {
+                                    category: "HARM_CATEGORY_HATE_SPEECH",
+                                    threshold: "BLOCK_NONE"
+                                },
+                                {
+                                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                    threshold: "BLOCK_NONE"
+                                },
+                                {
+                                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                                    threshold: "BLOCK_NONE"
+                                }
+                            ]
+                        })
+                    }
+                );
             }
 
-            const data = await response.json();
-            const enhancedPrompt = data.candidates[0]?.content?.parts[0]?.text;
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error('API Error Response:', errorData);
+                try {
+                    const parsedError = JSON.parse(errorData);
+                    throw new Error(parsedError.error?.message || `Failed to enhance prompt (HTTP ${response.status})`);
+                } catch {
+                    throw new Error(`Failed to enhance prompt (HTTP ${response.status}): ${errorData}`);
+                }
+            }
+
+            const responseText = await response.text();
+            console.log('Raw API Response:', responseText);
+            
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Failed to parse API response:', parseError, 'Response:', responseText);
+                throw new Error('Invalid JSON response from Gemini API');
+            }
+            
+            // Check for different possible response structures
+            let enhancedPrompt;
+            
+            console.log('Analyzing response structure...');
+            
+            // Standard Gemini response structure
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                enhancedPrompt = data.candidates[0].content.parts[0].text;
+                console.log('Found enhanced prompt using standard structure');
+            }
+            // Gemini 2.5 Pro might have different structure
+            else if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+                enhancedPrompt = data.candidates[0].content.parts.find(part => part.text)?.text;
+                console.log('Found enhanced prompt using parts find structure');
+            }
+            // Another possible structure
+            else if (data.contents && data.contents[0] && data.contents[0].parts && data.contents[0].parts[0]) {
+                enhancedPrompt = data.contents[0].parts[0].text;
+                console.log('Found enhanced prompt using contents structure');
+            }
+            // Try to find text in any nested structure
+            else if (data.candidates && data.candidates[0]) {
+                const candidate = data.candidates[0];
+                if (candidate.content && candidate.content.parts) {
+                    enhancedPrompt = candidate.content.parts.find(part => part.text)?.text;
+                    console.log('Found enhanced prompt in candidate content parts');
+                } else if (candidate.output && candidate.output.text) {
+                    enhancedPrompt = candidate.output.text;
+                    console.log('Found enhanced prompt in candidate output');
+                }
+            }
+            // Fallback: deep search for any text field
+            else {
+                console.log('Deep searching for text in response...');
+                const searchText = (obj) => {
+                    if (typeof obj === 'string' && obj.length > 10) return obj;
+                    if (obj && typeof obj === 'object') {
+                        for (const key in obj) {
+                            if (key === 'text') {
+                                if (typeof obj[key] === 'string' && obj[key].length > 10) {
+                                    return obj[key];
+                                }
+                            } else {
+                                const result = searchText(obj[key]);
+                                if (result) return result;
+                            }
+                        }
+                    }
+                    return null;
+                };
+                
+                enhancedPrompt = searchText(data);
+                if (enhancedPrompt) {
+                    console.log('Found enhanced text through deep search');
+                }
+            }
 
             if (!enhancedPrompt) {
-                throw new Error('No enhanced prompt returned from API');
+                console.error('Unexpected API response structure:', data);
+                console.error('Available keys in response:', Object.keys(data));
+                if (data.candidates && data.candidates[0]) {
+                    console.error('First candidate keys:', Object.keys(data.candidates[0]));
+                    if (data.candidates[0].content) {
+                        console.error('Content keys:', Object.keys(data.candidates[0].content));
+                        if (data.candidates[0].content.parts) {
+                            console.error('Parts:', data.candidates[0].content.parts);
+                        }
+                    }
+                }
+                throw new Error(`No enhanced prompt returned from API (${apiUsed}). Please check the console for the full response structure.`);
             }
 
             return enhancedPrompt.trim();
 
         } catch (err) {
             console.error('Gemini API Error:', err);
-            setError(err.message || 'Failed to enhance prompt');
+            
+            // Provide more specific error messages
+            let errorMessage = 'Failed to enhance prompt';
+            
+            if (err.name === 'TypeError' && err.message.includes('fetch')) {
+                errorMessage = 'Network error: Unable to connect to Gemini API. Please check your internet connection.';
+            } else if (err.message.includes('API key')) {
+                errorMessage = 'API key configuration error. Please check your API key in the .env file.';
+            } else if (err.message.includes('HTTP')) {
+                errorMessage = `API request failed: ${err.message}`;
+            } else if (err.message.includes('No enhanced prompt')) {
+                errorMessage = 'Gemini API returned an unexpected response format.';
+            } else {
+                errorMessage = err.message || 'An unexpected error occurred while enhancing the prompt.';
+            }
+            
+            setError(errorMessage);
             return null;
         } finally {
             setIsLoading(false);

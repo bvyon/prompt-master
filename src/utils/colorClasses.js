@@ -55,6 +55,77 @@ const colorMap = {
     border: 'border-gray-500',
     text: 'text-gray-700',
     textSolid: 'text-white'
+  },
+  // Additional colors from operators.json
+  violet: {
+    bg: 'bg-violet-50',
+    bgSolid: 'bg-violet-500',
+    border: 'border-violet-500',
+    text: 'text-violet-700',
+    textSolid: 'text-white'
+  },
+  teal: {
+    bg: 'bg-teal-50',
+    bgSolid: 'bg-teal-500',
+    border: 'border-teal-500',
+    text: 'text-teal-700',
+    textSolid: 'text-white'
+  },
+  amber: {
+    bg: 'bg-amber-50',
+    bgSolid: 'bg-amber-500',
+    border: 'border-amber-500',
+    text: 'text-amber-700',
+    textSolid: 'text-white'
+  },
+  slate: {
+    bg: 'bg-slate-50',
+    bgSolid: 'bg-slate-500',
+    border: 'border-slate-500',
+    text: 'text-slate-700',
+    textSolid: 'text-white'
+  },
+  cyan: {
+    bg: 'bg-cyan-50',
+    bgSolid: 'bg-cyan-500',
+    border: 'border-cyan-500',
+    text: 'text-cyan-700',
+    textSolid: 'text-white'
+  },
+  orange: {
+    bg: 'bg-orange-50',
+    bgSolid: 'bg-orange-500',
+    border: 'border-orange-500',
+    text: 'text-orange-700',
+    textSolid: 'text-white'
+  },
+  sky: {
+    bg: 'bg-sky-50',
+    bgSolid: 'bg-sky-500',
+    border: 'border-sky-500',
+    text: 'text-sky-700',
+    textSolid: 'text-white'
+  },
+  emerald: {
+    bg: 'bg-emerald-50',
+    bgSolid: 'bg-emerald-500',
+    border: 'border-emerald-500',
+    text: 'text-emerald-700',
+    textSolid: 'text-white'
+  },
+  lime: {
+    bg: 'bg-lime-50',
+    bgSolid: 'bg-lime-500',
+    border: 'border-lime-500',
+    text: 'text-lime-700',
+    textSolid: 'text-white'
+  },
+  rose: {
+    bg: 'bg-rose-50',
+    bgSolid: 'bg-rose-500',
+    border: 'border-rose-500',
+    text: 'text-rose-700',
+    textSolid: 'text-white'
   }
 };
 

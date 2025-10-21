@@ -3,10 +3,12 @@ import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
 
 const MetricsPanel = ({ config }) => {
-    const inputTokens = promptBuilder.estimateTokens(config.prompt);
+    // Use enhanced prompt if available, otherwise use original prompt
+    const currentPrompt = config.enhancedPrompt || config.prompt;
+    const inputTokens = promptBuilder.estimateTokens(currentPrompt);
     const outputTokens = config.maxTokens || 1000;
     const totalTokens = inputTokens + outputTokens;
-    const readability = promptBuilder.calculateReadabilityLevel(config.prompt);
+    const readability = promptBuilder.calculateReadabilityLevel(currentPrompt);
     const creativity = promptBuilder.calculateCreativity(config.temperature, config.top_p);
 
     const getReadabilityColor = (level) => {
@@ -149,13 +151,13 @@ const MetricsPanel = ({ config }) => {
                 <div className="grid grid-cols-3 gap-3 text-xs">
                     <div className="bg-gray-50 p-3 rounded-lg text-center">
                         <div className="text-lg font-bold text-gray-800">
-                            {config.prompt.split(/\s+/).length}
+                            {currentPrompt.split(/\s+/).length}
                         </div>
                         <div className="text-gray-600">Words</div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded-lg text-center">
                         <div className="text-lg font-bold text-gray-800">
-                            {config.prompt.split(/[.!?]+/).filter(s => s.trim().length > 0).length}
+                            {currentPrompt.split(/[.!?]+/).filter(s => s.trim().length > 0).length}
                         </div>
                         <div className="text-gray-600">Sentences</div>
                     </div>
