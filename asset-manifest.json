@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/prompt-master/static/css/main.20363060.css",
+    "main.js": "/prompt-master/static/js/main.b18888ec.js",
+    "index.html": "/prompt-master/index.html",
+    "main.20363060.css.map": "/prompt-master/static/css/main.20363060.css.map",
+    "main.b18888ec.js.map": "/prompt-master/static/js/main.b18888ec.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.20363060.css",
+    "static/js/main.b18888ec.js"
+  ]
+}
