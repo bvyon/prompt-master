@@ -43,7 +43,7 @@ REACT_APP_GEMINI_API_KEY=AIzaTuApiKeyRealAqui
 3. Prueba la función de Gemini:
    - Escribe un prompt en el panel central
    - Haz clic en "Enhance with Gemini AI"
-   - Deberías ver el mensaje "Enhancing..." y luego el prompt mejorado
+   - Deberías ver el mensaje "Enhancing..." y luego el prompt mejorado usando Gemini 2.5 Flash
 
 ### **Paso 4: Solución de problemas**
 
@@ -86,7 +86,7 @@ Para confirmar que todo funciona:
 
 2. Haz clic en "Enhance with Gemini AI"
 
-3. Deberías ver un prompt mejorado con el badge "Enhanced"
+3. Deberías ver un prompt mejorado con el badge "Enhanced" usando Gemini 2.5 Flash
 
 ### **🔒 Seguridad recordatoria**
 

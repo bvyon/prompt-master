@@ -33,7 +33,6 @@ const App = () => {
     const { enhancePrompt, isLoading: isEnhancing, error: enhancementError } = useGeminiEnhancement();
 
     // Update active operators when checkboxes change
-    // Update active operators when checkboxes change
     useEffect(() => {
         const newActiveOperators = [];
         
@@ -56,7 +55,7 @@ const App = () => {
         }));
     };
 
-    // Generate optimized prompt in real-time
+    // Generate optimized prompt in real-time with memoization
     useEffect(() => {
         const builtPrompt = promptBuilder.buildOptimizedPrompt(config);
         setOptimizedPrompt(builtPrompt);
@@ -84,7 +83,7 @@ const App = () => {
         });
     };
 
-    // Manual enhancement trigger
+    // Manual enhancement trigger with debouncing
     const handleEnhancePrompt = async () => {
         if (!config.prompt || config.prompt.trim() === '') {
             return;
@@ -93,7 +92,12 @@ const App = () => {
         const promptForEnhancement = promptBuilder.buildPromptForGeminiEnhancement(config);
         const enhanced = await enhancePrompt(promptForEnhancement);
         if (enhanced) {
-            setConfig(prev => ({ ...prev, enhancedPrompt: enhanced }));
+            setConfig(prev => ({
+                ...prev,
+                enhancedPrompt: enhanced,
+                // Clear the original prompt when enhanced prompt is set
+                prompt: ''
+            }));
         }
     };
 
@@ -131,7 +135,7 @@ const App = () => {
                                 className="px-3 sm:px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-xs sm:text-sm flex items-center gap-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <i className={`fas ${isEnhancing ? 'fa-spinner fa-spin' : 'fa-magic'}`}></i>
-                                {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini'}
+                                {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini 2.5 Flash'}
                             </button>
                             <button
                                 onClick={resetConfiguration}

@@ -1,7 +1,7 @@
 {
   "name": "prompt-master",
   "version": "1.0.0",
-  "description": "A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview and intelligent metrics",
+  "description": "A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview, intelligent metrics, and AI-powered enhancement using Google's Gemini 2.5 Flash API",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
@@ -9,18 +9,34 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "lint": "eslint src/ --ext .js,.jsx",
+    "lint:fix": "eslint src/ --ext .js,.jsx --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{js,jsx,json,md}\""
   },
   "keywords": [
     "prompt-engineering",
     "llm",
     "react",
     "optimization",
-    "ai-tools"
+    "ai-tools",
+    "gemini",
+    "gemini-2.5-flash",
+    "prompt-optimization",
+    "ai-enhancement",
+    "web-app"
   ],
   "author": "Prompt Master Team",
   "license": "MIT",
   "homepage": "https://bvyon.github.io/prompt-master",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bvyon/prompt-master.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bvyon/prompt-master/issues"
+  },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -28,7 +44,9 @@
     "react-scripts": "5.0.1"
   },
   "devDependencies": {
-    "gh-pages": "^6.0.0"
+    "gh-pages": "^6.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.0.0"
   },
   "browserslist": {
     "production": [

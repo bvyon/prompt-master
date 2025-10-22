@@ -1,6 +1,182 @@
 # Prompt Master
 
-A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview, intelligent metrics, and AI-powered enhancement using Google's Gemini API.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
+[![Gemini](https://img.shields.io/badge/Gemini-2.5%20Flash-green.svg)](https://ai.google.dev/)
+[![Build Status](https://github.com/bvyon/prompt-master/workflows/Deploy/badge.svg)](https://github.com/bvyon/prompt-master/actions)
+
+A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview, intelligent metrics, and AI-powered enhancement using Google's **Gemini 2.5 Flash** API.
+
+![Prompt Master Screenshot](https://via.placeholder.com/1200x600/6366f1/ffffff?text=Prompt+Master+Interface)
+
+## 🚀 Quick Start
+
+### Option 1: Use Executable Scripts (Recommended)
+
+#### For macOS:
+```bash
+# Clone and setup
+git clone https://github.com/bvyon/prompt-master.git
+cd prompt-master
+
+# Configure your Gemini API key
+./configure_api.sh
+
+# Start with one click
+./start_app.command
+```
+
+#### For Windows:
+```bash
+# Clone and setup
+git clone https://github.com/bvyon/prompt-master.git
+cd prompt-master
+
+# Configure your Gemini API key (manually edit .env.local)
+# Start with one click
+start_app.bat
+```
+
+### Option 2: Traditional Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/bvyon/prompt-master.git
+   cd prompt-master
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure your Gemini API key**:
+   ```bash
+   # Get your API key from: https://makersuite.google.com/app/apikey
+   cp .env .env.local
+   # Edit .env.local and add your API key
+   ```
+
+4. **Start the development server**:
+   ```bash
+   npm start
+   ```
+
+5. **Open your browser** and navigate to:
+   ```
+   http://localhost:3000/prompt-master
+   ```
+
+### Alternative: Direct File Access
+
+You can also open `public/index.html` directly in your browser, but this may show development warnings and some features may not work properly due to browser security restrictions.
+
+## 🎯 Features
+
+### 1. LLM Configuration Panel (First)
+- **Parameters**: Temperature, Top P, Max Tokens sliders
+- **Advanced Settings**: Role, Tone, Audience, Format dropdowns
+- **Safety Features**: Chain of Thought, Reflective Mode, No Autopilot, Guardrail checkboxes
+- Collapsible sections for organized interface
+
+### 2. Prompt Input Panel (Second)
+- Textarea for raw prompt input
+- 25+ predefined operators with categories
+- Search and filter functionality
+- Quick operator shortcuts
+- Color-coded operator badges
+- **AI-Prompt Enhancement**: One-click prompt improvement with Google's **Gemini 2.5 Flash** AI
+- Manual enhancement trigger with loading states and error handling
+
+### 3. Prompt Preview Panel (Third)
+- Real-time optimized prompt generation
+- Copy to clipboard functionality
+- Configuration explanations
+- Token counting (input/output)
+- Readability and creativity indicators
+- **Enhanced Prompt Badge**: Visual indicator for AI-optimized prompts
+
+### 4. Metrics Panel (Fourth)
+- Token usage analysis
+- Readability assessment (simple/medium/complex)
+- Creativity level indicator
+- Efficiency scoring with visual progress ring
+- Smart recommendations for improvement
+- Toggle to show/hide panel
+
+Note: Color badges are now driven by a small utility (`src/utils/colorClasses.js`) that maps operator color keys to static Tailwind class names. This avoids missing CSS classes in production builds (Tailwind needs static class names to include them in the final CSS).
+
+## 🤖 Gemini AI Integration
+
+### AI-Powered Prompt Enhancement
+- **Google Gemini 2.5 Flash** integration for advanced prompt optimization
+- **Manual enhancement trigger** - Enhance prompts on-demand with a single click
+- **Smart system prompts** - Specialized prompt engineering guidance
+- **Error handling** - Comprehensive error messages and recovery
+- **Loading states** - Visual feedback during enhancement process
+
+### 🔒 API Key Security & Setup
+
+#### **For Development (Local Setup):**
+1. **Get your Gemini API key** from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. **Use the automatic configuration script**:
+   ```bash
+   ./configure_api.sh
+   ```
+   This will create and configure your `.env.local` file securely.
+
+3. **Manual configuration**:
+   ```bash
+   cp .env .env.local
+   # Edit .env.local and add: REACT_APP_GEMINI_API_KEY=your_api_key_here
+   ```
+
+#### **For Production (GitHub Pages):**
+1. **Add your API key as a GitHub Secret**:
+   - Go to your repository → Settings → Secrets and variables → Actions
+   - Create a secret named `REACT_APP_GEMINI_API_KEY` with your API key
+   - The deployment will automatically use this secret
+
+### 📚 Setup Documentation
+- See [`GEMINI_LOCAL_SETUP.md`](GEMINI_LOCAL_SETUP.md) for detailed setup instructions
+- See [`SETUP.md`](SETUP.md) for advanced configuration options
+- See [`EXECUTABLE_GUIDE.md`](EXECUTABLE_GUIDE.md) for one-click startup
+
+### Usage
+1. **Write and configure** your prompt with desired settings
+2. **Click "Enhance with Gemini 2.5 Flash"** to improve your prompt
+3. **Review the enhanced version** in the preview panel with the "Enhanced" badge
+
+### ⚠️ Security Notes
+- **Never commit your `.env` file to Git** (it's in `.gitignore`)
+- **Your API key is never exposed** in the codebase
+- **GitHub Secrets** are used for production deployment
+- **Local development** uses `.env.local` which is never shared
+
+## 🛠️ Technical Stack
+
+- **React 18** - UI framework
+- **Tailwind CSS** - Styling
+- **Framer Motion** - Animations
+- **Font Awesome** - Icons
+- **Google Gemini 2.5 Flash API** - AI-powered enhancement
+- **GitHub Actions** - Automated deployment
+
+## ✅ Recent Improvements
+
+### 🚀 Gemini 2.5 Flash Integration
+- **Upgraded from Gemini 2.0 Pro to Gemini 2.5 Flash** for better performance and cost efficiency
+- **Optimized API configuration** with proper fallback handling
+- **Enhanced error handling** and response parsing
+- **Improved code organization** with extracted utility functions
+
+### 📱 Responsive and testing notes
+- To test responsiveness locally, run `npm start` and use DevTools (toggle device toolbar) to check widths 375px, 768px, 1024px.
+- Generate a production build (`npm run build`) and inspect the `build` folder or deploy to GitHub Pages to validate the final CSS payload.
+
+### 🛳️ Deployment notes
+- If you deploy to GitHub Pages, confirm the `homepage` field in `package.json` matches the repository path or update it to `"/"` for root deployment. The build process will use this to generate correct asset URLs.
+- The mapping utility for color classes ensures classes are present in the final CSS; if you add new operator colors, also add entries to `src/utils/colorClasses.js`.
 
 ## 🚀 Quick Start
 
@@ -99,61 +275,25 @@ You can also open `public/index.html` directly in your browser, but this may sho
 
 Note: Color badges are now driven by a small utility (`src/utils/colorClasses.js`) that maps operator color keys to static Tailwind class names. This avoids missing CSS classes in production builds (Tailwind needs static class names to include them in the final CSS).
 
-## 🤖 Gemini AI Integration
+## ✅ Recent Improvements
 
-### AI-Powered Prompt Enhancement
-- **Google Gemini 2.0 Flash** integration for advanced prompt optimization
-- **Manual enhancement trigger** - Enhance prompts on-demand with a single click
-- **Smart system prompts** - Specialized prompt engineering guidance
-- **Error handling** - Comprehensive error messages and recovery
-- **Loading states** - Visual feedback during enhancement process
+### 🚀 Gemini 2.5 Flash Integration
+- **Upgraded from Gemini 2.0 Pro to Gemini 2.5 Flash** for better performance and cost efficiency
+- **Optimized API configuration** with proper fallback handling
+- **Enhanced error handling** and response parsing
+- **Improved code organization** with extracted utility functions
 
-### 🔒 API Key Security & Setup
+### 📱 Responsive and testing notes
+- To test responsiveness locally, run `npm start` and use DevTools (toggle device toolbar) to check widths 375px, 768px, 1024px.
+- Generate a production build (`npm run build`) and inspect the `build` folder or deploy to GitHub Pages to validate the final CSS payload.
 
-#### **For Development (Local Setup):**
-1. **Get your Gemini API key** from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. **Use the automatic configuration script**:
-   ```bash
-   ./configure_api.sh
-   ```
-   This will create and configure your `.env.local` file securely.
-
-3. **Manual configuration**:
-   ```bash
-   cp .env .env.local
-   # Edit .env.local and add: REACT_APP_GEMINI_API_KEY=your_api_key_here
-   ```
-
-#### **For Production (GitHub Pages):**
-1. **Add your API key as a GitHub Secret**:
-   - Go to your repository → Settings → Secrets and variables → Actions
-   - Create a secret named `REACT_APP_GEMINI_API_KEY` with your API key
-   - The deployment will automatically use this secret
-
-### 📚 Setup Documentation
-- See [`GEMINI_LOCAL_SETUP.md`](GEMINI_LOCAL_SETUP.md) for detailed setup instructions
-- See [`SETUP.md`](SETUP.md) for advanced configuration options
-- See [`EXECUTABLE_GUIDE.md`](EXECUTABLE_GUIDE.md) for one-click startup
-
-### Usage
-1. **Write and configure** your prompt with desired settings
-2. **Click "Enhance with Gemini AI"** to improve your prompt
-3. **Review the enhanced version** in the preview panel with the "Enhanced" badge
-
-### ⚠️ Security Notes
-- **Never commit your `.env` file to Git** (it's in `.gitignore`)
-- **Your API key is never exposed** in the codebase
-- **GitHub Secrets** are used for production deployment
-- **Local development** uses `.env.local` which is never shared
-
-## 🛠️ Technical Stack
-
-- **React 18** - UI framework
-- **Tailwind CSS** - Styling
+### 🛳️ Deployment notes
+- If you deploy to GitHub Pages, confirm the `homepage` field in `package.json` matches the repository path or update it to `"/"` for root deployment. The build process will use this to generate correct asset URLs.
+- The mapping utility for color classes ensures classes are present in the final CSS; if you add new operator colors, also add entries to `src/utils/colorClasses.js`.
 - **Framer Motion** - Animations
 - **Font Awesome** - Icons
-- **Google Gemini API** - AI-powered enhancement
-## ✅ Recent fixes and improvements
+- **Google Gemini 2.5 Flash API** - AI-powered enhancement
+- **GitHub Actions** - Automated deployment
 
 - Global CSS safety fixes (applied to `src/index.css`):
    - `overflow-x: hidden` added to `html, body, #root` to prevent horizontal scroll on small screens or when large elements are present.
@@ -493,7 +633,7 @@ If you have any questions or issues, please open an issue on GitHub.
 - **Automated configuration scripts** for easy setup
 
 ### 🤖 Gemini AI Integration
-- **AI-powered prompt enhancement** using Google's Gemini 2.0 Flash model
+- **AI-powered prompt enhancement** using Google's **Gemini 2.5 Flash** model
 - **Manual enhancement button** for on-demand prompt improvement
 - **Enhanced prompt preview** with visual indicators
 - **Comprehensive error handling** and loading states
@@ -524,3 +664,51 @@ If you have any questions or issues, please open an issue on GitHub.
 - **Code Readability Improvements**:
   - Added comments to `src/App.js` to enhance code readability and maintainability.
 - **Deployed with GitHub Actions 🚀**
+
+## 🚀 Development and Contributing
+
+### Available Scripts
+```bash
+npm start          # Start development server
+npm run build      # Build for production
+npm run test       # Run tests
+npm run lint       # Run ESLint
+npm run lint:fix   # Fix ESLint issues
+npm run format     # Format code with Prettier
+```
+
+### Code Quality
+- **ESLint** for code linting
+- **Prettier** for code formatting
+- **TypeScript support** ready (add `.ts` files for type checking)
+
+### Contributing
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is open source and available under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## 🤝 Support
+
+If you have any questions or issues, please open an issue on the [GitHub Issues](https://github.com/bvyon/prompt-master/issues) page.
+
+---
+
+**Built with ❤️ using React, Tailwind CSS, Framer Motion, and Google Gemini 2.5 Flash AI**
+
+## 📝 Changelog
+
+### v1.0.0 (Latest)
+- ✅ **Upgraded to Gemini 2.5 Flash** for better performance and cost efficiency
+- ✅ **Enhanced error handling** and response parsing
+- ✅ **Improved code organization** with extracted utility functions
+- ✅ **Updated documentation** and README for GitHub publication
+- ✅ **Added development scripts** for code quality
+- ✅ **Enhanced package.json** with proper metadata and repository info
+- ✅ **Optimized performance** with memoization and better React patterns
+- ✅ **Improved user experience** with enhanced prompt handling

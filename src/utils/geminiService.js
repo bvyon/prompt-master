@@ -1,10 +1,44 @@
 // Gemini API Service for Prompt Enhancement
 import { useState, useEffect } from 'react';
 
-// System prompt for Gemini 2.5 Pro prompt enhancement - shortened to save tokens
+// System prompt for Gemini 2.5 Flash prompt enhancement - shortened to save tokens
 const SYSTEM_PROMPT = `You are an expert prompt engineering assistant. Enhance the following prompt to make it more effective, clear, and structured. Maintain the original intent and language, add clarity where needed, and keep it concise. Return only the enhanced prompt without any explanation or markdown formatting.`;
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const FALLBACK_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+// Common API request configuration
+const createApiRequestBody = (prompt) => ({
+    contents: [{
+        role: "user",
+        parts: [{ text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${prompt}` }]
+    }],
+    generationConfig: {
+        temperature: 0.3,
+        topP: 0.8,
+        topK: 40,
+        maxOutputTokens: 4096,
+        responseMimeType: "text/plain",
+    },
+    safetySettings: [
+        {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_NONE"
+        },
+        {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_NONE"
+        },
+        {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_NONE"
+        },
+        {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_NONE"
+        }
+    ]
+});
 
 export const useGeminiEnhancement = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +72,7 @@ export const useGeminiEnhancement = () => {
             
             let response;
             let apiUsed = GEMINI_API_URL;
+            const requestBody = createApiRequestBody(originalPrompt);
             
             try {
                 response = await fetch(
@@ -47,82 +82,20 @@ export const useGeminiEnhancement = () => {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            contents: [{
-                                role: "user",
-                                parts: [{ text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${originalPrompt}` }]
-                            }],
-                            generationConfig: {
-                                temperature: 0.3,
-                                topP: 0.8,
-                                topK: 40,
-                                maxOutputTokens: 4096,
-                                responseMimeType: "text/plain",
-                            },
-                            safetySettings: [
-                                {
-                                    category: "HARM_CATEGORY_HARASSMENT",
-                                    threshold: "BLOCK_NONE"
-                                },
-                                {
-                                    category: "HARM_CATEGORY_HATE_SPEECH",
-                                    threshold: "BLOCK_NONE"
-                                },
-                                {
-                                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                                    threshold: "BLOCK_NONE"
-                                },
-                                {
-                                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                                    threshold: "BLOCK_NONE"
-                                }
-                            ]
-                        })
+                        body: JSON.stringify(requestBody)
                     }
                 );
             } catch (fetchError) {
                 console.log('First API attempt failed, trying fallback...');
-                // Try with gemini-2.0-pro as fallback
-                const fallbackUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-pro:generateContent';
-                apiUsed = fallbackUrl;
+                apiUsed = FALLBACK_API_URL;
                 response = await fetch(
-                    `${fallbackUrl}?key=${apiKey}`,
+                    `${FALLBACK_API_URL}?key=${apiKey}`,
                     {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            contents: [{
-                                role: "user",
-                                parts: [{ text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${originalPrompt}` }]
-                            }],
-                            generationConfig: {
-                                temperature: 0.3,
-                                topP: 0.8,
-                                topK: 40,
-                                maxOutputTokens: 4096,
-                                responseMimeType: "text/plain",
-                            },
-                            safetySettings: [
-                                {
-                                    category: "HARM_CATEGORY_HARASSMENT",
-                                    threshold: "BLOCK_NONE"
-                                },
-                                {
-                                    category: "HARM_CATEGORY_HATE_SPEECH",
-                                    threshold: "BLOCK_NONE"
-                                },
-                                {
-                                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                                    threshold: "BLOCK_NONE"
-                                },
-                                {
-                                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                                    threshold: "BLOCK_NONE"
-                                }
-                            ]
-                        })
+                        body: JSON.stringify(requestBody)
                     }
                 );
             }
@@ -149,75 +122,9 @@ export const useGeminiEnhancement = () => {
                 throw new Error('Invalid JSON response from Gemini API');
             }
             
-            // Check for different possible response structures
-            let enhancedPrompt;
-            
-            console.log('Analyzing response structure...');
-            
-            // Standard Gemini response structure
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                enhancedPrompt = data.candidates[0].content.parts[0].text;
-                console.log('Found enhanced prompt using standard structure');
-            }
-            // Gemini 2.5 Pro might have different structure
-            else if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-                enhancedPrompt = data.candidates[0].content.parts.find(part => part.text)?.text;
-                console.log('Found enhanced prompt using parts find structure');
-            }
-            // Another possible structure
-            else if (data.contents && data.contents[0] && data.contents[0].parts && data.contents[0].parts[0]) {
-                enhancedPrompt = data.contents[0].parts[0].text;
-                console.log('Found enhanced prompt using contents structure');
-            }
-            // Try to find text in any nested structure
-            else if (data.candidates && data.candidates[0]) {
-                const candidate = data.candidates[0];
-                if (candidate.content && candidate.content.parts) {
-                    enhancedPrompt = candidate.content.parts.find(part => part.text)?.text;
-                    console.log('Found enhanced prompt in candidate content parts');
-                } else if (candidate.output && candidate.output.text) {
-                    enhancedPrompt = candidate.output.text;
-                    console.log('Found enhanced prompt in candidate output');
-                }
-            }
-            // Fallback: deep search for any text field
-            else {
-                console.log('Deep searching for text in response...');
-                const searchText = (obj) => {
-                    if (typeof obj === 'string' && obj.length > 10) return obj;
-                    if (obj && typeof obj === 'object') {
-                        for (const key in obj) {
-                            if (key === 'text') {
-                                if (typeof obj[key] === 'string' && obj[key].length > 10) {
-                                    return obj[key];
-                                }
-                            } else {
-                                const result = searchText(obj[key]);
-                                if (result) return result;
-                            }
-                        }
-                    }
-                    return null;
-                };
-                
-                enhancedPrompt = searchText(data);
-                if (enhancedPrompt) {
-                    console.log('Found enhanced text through deep search');
-                }
-            }
-
+            // Extract enhanced prompt from API response
+            const enhancedPrompt = extractEnhancedPrompt(data, apiUsed);
             if (!enhancedPrompt) {
-                console.error('Unexpected API response structure:', data);
-                console.error('Available keys in response:', Object.keys(data));
-                if (data.candidates && data.candidates[0]) {
-                    console.error('First candidate keys:', Object.keys(data.candidates[0]));
-                    if (data.candidates[0].content) {
-                        console.error('Content keys:', Object.keys(data.candidates[0].content));
-                        if (data.candidates[0].content.parts) {
-                            console.error('Parts:', data.candidates[0].content.parts);
-                        }
-                    }
-                }
                 throw new Error(`No enhanced prompt returned from API (${apiUsed}). Please check the console for the full response structure.`);
             }
 
@@ -254,6 +161,82 @@ export const useGeminiEnhancement = () => {
         error,
         apiKey: apiKey ? 'configured' : 'not configured'
     };
+};
+
+// Extract enhanced prompt from API response
+const extractEnhancedPrompt = (data, apiUsed) => {
+    console.log('Analyzing response structure...');
+    
+    // Standard Gemini response structure
+    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+        const enhancedPrompt = data.candidates[0].content.parts[0].text;
+        console.log('Found enhanced prompt using standard structure');
+        return enhancedPrompt;
+    }
+    // Gemini 2.5 Flash might have different structure
+    else if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+        const enhancedPrompt = data.candidates[0].content.parts.find(part => part.text)?.text;
+        console.log('Found enhanced prompt using parts find structure');
+        return enhancedPrompt;
+    }
+    // Another possible structure
+    else if (data.contents && data.contents[0] && data.contents[0].parts && data.contents[0].parts[0]) {
+        const enhancedPrompt = data.contents[0].parts[0].text;
+        console.log('Found enhanced prompt using contents structure');
+        return enhancedPrompt;
+    }
+    // Try to find text in any nested structure
+    else if (data.candidates && data.candidates[0]) {
+        const candidate = data.candidates[0];
+        if (candidate.content && candidate.content.parts) {
+            const enhancedPrompt = candidate.content.parts.find(part => part.text)?.text;
+            console.log('Found enhanced prompt in candidate content parts');
+            return enhancedPrompt;
+        } else if (candidate.output && candidate.output.text) {
+            const enhancedPrompt = candidate.output.text;
+            console.log('Found enhanced prompt in candidate output');
+            return enhancedPrompt;
+        }
+    }
+    // Fallback: deep search for any text field
+    console.log('Deep searching for text in response...');
+    const searchText = (obj) => {
+        if (typeof obj === 'string' && obj.length > 10) return obj;
+        if (obj && typeof obj === 'object') {
+            for (const key in obj) {
+                if (key === 'text') {
+                    if (typeof obj[key] === 'string' && obj[key].length > 10) {
+                        return obj[key];
+                    }
+                } else {
+                    const result = searchText(obj[key]);
+                    if (result) return result;
+                }
+            }
+        }
+        return null;
+    };
+    
+    const enhancedPrompt = searchText(data);
+    if (enhancedPrompt) {
+        console.log('Found enhanced text through deep search');
+        return enhancedPrompt;
+    }
+    
+    // If no prompt found, log error details
+    console.error('Unexpected API response structure:', data);
+    console.error('Available keys in response:', Object.keys(data));
+    if (data.candidates && data.candidates[0]) {
+        console.error('First candidate keys:', Object.keys(data.candidates[0]));
+        if (data.candidates[0].content) {
+            console.error('Content keys:', Object.keys(data.candidates[0].content));
+            if (data.candidates[0].content.parts) {
+                console.error('Parts:', data.candidates[0].content.parts);
+            }
+        }
+    }
+    
+    return null;
 };
 
 export default useGeminiEnhancement;
