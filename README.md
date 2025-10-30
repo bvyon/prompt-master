@@ -703,8 +703,11 @@ If you have any questions or issues, please open an issue on the [GitHub Issues]
 
 ## 📝 Changelog
 
-### v1.0.0 (Latest)
-- ✅ **Upgraded to Gemini 2.5 Flash** for better performance and cost efficiency
+### v1.0.1 (Latest)
+- 🔧 **Complete Gemini model upgrade**: Replaced all references from Gemini 2.0 to Gemini 2.5 Flash across the entire codebase
+- 🔧 **Updated API endpoints**: Both primary and fallback URLs now use gemini-2.5-flash
+- 🔧 **Updated documentation**: All configuration files and README reflect the new model
+- 🔧 **Enhanced security**: Updated API key configuration scripts to use the new model
 - ✅ **Enhanced error handling** and response parsing
 - ✅ **Improved code organization** with extracted utility functions
 - ✅ **Updated documentation** and README for GitHub publication
@@ -712,3 +715,6 @@ If you have any questions or issues, please open an issue on the [GitHub Issues]
 - ✅ **Enhanced package.json** with proper metadata and repository info
 - ✅ **Optimized performance** with memoization and better React patterns
 - ✅ **Improved user experience** with enhanced prompt handling
+
+### v1.0.0
+- ✅ **Initial Gemini 2.5 Flash integration** for better performance and cost efficiency

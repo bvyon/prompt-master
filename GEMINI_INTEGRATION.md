@@ -13,7 +13,7 @@ The Prompt Master application now includes integration with Google's Gemini AI (
 - **Context-aware**: Considers role, tone, audience, and format settings
 
 ### Gemini Model Configuration
-- **Model**: Gemini 2.0 Flash (latest version)
+- **Model**: Gemini 2.5 Flash (latest version)
 - **Temperature**: 0.3 (balanced for consistent enhancement)
 - **Top P**: 0.8 (diverse but focused responses)
 - **Safety Settings**: Disabled for maximum flexibility in prompt engineering
@@ -25,7 +25,7 @@ Add your Gemini API key to the `.env` file:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
 ### 2. Get API Key
