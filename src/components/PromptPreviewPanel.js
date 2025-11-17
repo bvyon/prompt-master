@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
 import { getColorClasses } from '../utils/colorClasses';
+import { useToast } from '../contexts/ToastContext';
 
 const PromptPreviewPanel = ({
     config,
@@ -10,7 +11,6 @@ const PromptPreviewPanel = ({
     isEnhancing = false,
     enhancementError = null
 }) => {
-    const [copied, setCopied] = useState(false);
     const [showExplanation, setShowExplanation] = useState(false);
 
     const optimizedPrompt = useMemo(() => optimizedPromptProp || promptBuilder.buildOptimizedPrompt(config), [optimizedPromptProp, config]);
@@ -20,15 +20,15 @@ const PromptPreviewPanel = ({
     const readability = useMemo(() => promptBuilder.calculateReadabilityLevel(config.prompt), [config.prompt]);
     const creativity = useMemo(() => promptBuilder.calculateCreativity(config.temperature, config.top_p), [config.temperature, config.top_p]);
 
-    const copyToClipboard = async () => {
+    const { showSuccess, showError } = useToast();
+
+    const copyToClipboard = async (text, section = 'optimized prompt') => {
         try {
-            const toCopy = optimizedPrompt;
-            await navigator.clipboard.writeText(toCopy);
-            setCopied(true);
-            // disable for a short period to avoid repeated clicks
-            setTimeout(() => setCopied(false), 1500);
+            await navigator.clipboard.writeText(text);
+            showSuccess(`Copied ${section} to clipboard!`);
         } catch (err) {
             console.error('Failed to copy: ', err);
+            showError('Failed to copy to clipboard');
         }
     };
 
@@ -127,12 +127,12 @@ const PromptPreviewPanel = ({
                     </div>
                     <div className="flex gap-2">
                         <button
-                            onClick={copyToClipboard}
+                            onClick={() => copyToClipboard(optimizedPrompt, 'optimized prompt')}
                             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={isEnhancing}
+                            disabled={isEnhancing || !optimizedPrompt}
                         >
-                            <i className={`fas ${copied ? 'fa-check' : 'fa-copy'}`}></i>
-                            {copied ? 'Copied!' : 'Copy'}
+                            <i className="fas fa-copy"></i>
+                            Copy Optimized
                         </button>
                         <button
                             onClick={() => setShowExplanation(!showExplanation)}
@@ -191,11 +191,71 @@ const PromptPreviewPanel = ({
                 </div>
             </div>
 
-            {/* Preview */}
-            <div className="flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto">
-                <div className="font-mono text-sm whitespace-pre-wrap">
-                    {formatConfigForDisplay()}
-                </div>
+            {/* Preview sections */}
+            <div className="flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto space-y-4">
+                {/* Raw Prompt */}
+                <section>
+                    <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                            Raw Prompt
+                        </h3>
+                        <button
+                            onClick={() => copyToClipboard(config.prompt || '', 'raw prompt')}
+                            disabled={!config.prompt}
+                            className="text-[10px] px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                        >
+                            <i className="fas fa-copy" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div className="text-xs text-gray-600 bg-white rounded p-2 min-h-[40px]">
+                        {config.prompt || 'Start by writing your idea or request here in the Prompt Input panel.'}
+                    </div>
+                </section>
+
+                {/* Optimized Prompt */}
+                <section>
+                    <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                            Optimized Prompt (with structure and operators)
+                        </h3>
+                        <button
+                            onClick={() => copyToClipboard(optimizedPrompt || '', 'optimized prompt')}
+                            disabled={!optimizedPrompt}
+                            className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                        >
+                            <i className="fas fa-copy" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div className="font-mono text-xs text-gray-800 whitespace-pre-wrap bg-white rounded p-2 min-h-[60px]">
+                        {optimizedPrompt
+                            ? formatConfigForDisplay()
+                            : 'Configure role, tone, audience and apply operators to see the optimized prompt.'}
+                    </div>
+                </section>
+
+                {/* Enhanced Prompt */}
+                <section>
+                    <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
+                            Enhanced Prompt (Gemini)
+                        </h3>
+                        <button
+                            onClick={() => copyToClipboard(config.enhancedPrompt || '', 'enhanced prompt')}
+                            disabled={!config.enhancedPrompt}
+                            className="text-[10px] px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                        >
+                            <i className="fas fa-copy" aria-hidden="true"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div className="text-xs text-gray-700 whitespace-pre-wrap bg-white rounded p-2 min-h-[40px]">
+                        {config.enhancedPrompt
+                            ? config.enhancedPrompt
+                            : 'Use "Enhance with Gemini AI" to generate an upgraded version of your optimized prompt.'}
+                    </div>
+                </section>
             </div>
 
             {/* Configuration explanation */}
@@ -203,20 +263,17 @@ const PromptPreviewPanel = ({
                 <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-4 p-4 bg-yellow-50 rounded-lg"
+                    className="mt-4 p-3 bg-yellow-50 rounded-lg"
                 >
-                    <h4 className="font-semibold text-yellow-800 mb-2">
-                        <i className="fas fa-lightbulb mr-2"></i>
-                        Configuration Explanation
+                    <h4 className="font-semibold text-yellow-800 mb-1 text-sm">
+                        <i className="fas fa-lightbulb mr-2" aria-hidden="true"></i>
+                        How to read these prompts
                     </h4>
-                    <div className="text-sm text-yellow-700 space-y-1">
-                        <p>• <strong>Role:</strong> Defines the persona the AI should adopt</p>
-                        <p>• <strong>Tone:</strong> Sets the communication style</p>
-                        <p>• <strong>Audience:</strong> Tailors complexity to the target audience</p>
-                        <p>• <strong>Format:</strong> Specifies the output structure</p>
-                        <p>• <strong>Temperature:</strong> Controls randomness (0=deterministic, 1=creative)</p>
-                        <p>• <strong>Top P:</strong> Controls diversity of word selection</p>
-                        <p>• <strong>Max Tokens:</strong> Limits response length</p>
+                    <div className="text-[11px] text-yellow-800 space-y-1">
+                        <p>• Raw Prompt: what you type. Keep it clear and specific.</p>
+                        <p>• Optimized Prompt: structured version with role, tone, audience, format and operators.</p>
+                        <p>• Enhanced Prompt: Gemini-refined version for maximum quality. Use this in your LLM/chat.</p>
+                        <p>• Operators (e.g. /CHAIN OF THOUGHT, /GUARDRAIL): add reasoning depth, safety and control.</p>
                     </div>
                 </motion.div>
             )}

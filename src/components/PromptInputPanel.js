@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import * as promptBuilder from '../utils/promptBuilder';
 import { getColorClasses } from '../utils/colorClasses';
@@ -12,7 +12,8 @@ const PromptInputPanel = ({
     disabled = false,
     onGenerate = null,
     isEnhancing,
-    enhancementError
+    enhancementError,
+    onEnhance
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -208,20 +209,17 @@ const PromptInputPanel = ({
             {/* Gemini Enhancement Button */}
             <div className="mt-4">
                 <button
-                    onClick={() => {
-                        // Trigger enhancement from parent
-                        const event = new CustomEvent('enhancePrompt');
-                        window.dispatchEvent(event);
-                    }}
-                    disabled={!prompt || disabled || isEnhancing}
+                    onClick={onEnhance}
+                    disabled={!prompt || disabled || isEnhancing || !onEnhance}
                     className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Enhance your prompt with Gemini"
                 >
                     <i className={`fas ${isEnhancing ? 'fa-spinner fa-spin' : 'fa-magic'}`}></i>
                     {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini AI'}
                 </button>
                 
                 {enhancementError && (
-                    <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                    <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded" role="alert">
                         <i className="fas fa-exclamation-triangle mr-1"></i>
                         Enhancement failed: {enhancementError}
                     </div>

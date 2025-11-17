@@ -1,6 +1,18 @@
-// Simple token counter (rough estimation)
+// More accurate token counter based on GPT tokenization patterns
 export function estimateTokens(text) {
-    return Math.ceil(text.length / 4);
+    if (!text) return 0;
+
+    // Count alphanumeric characters (roughly 1 token per 4 characters)
+    const alphaNumChars = text.replace(/[^a-zA-Z0-9]/g, '').length;
+    // Count punctuation and special characters (roughly 1 token per 2 characters)
+    const specialChars = text.replace(/[a-zA-Z0-9\s]/g, '').length;
+    // Count whitespace (roughly 1 token per word break)
+    const wordBreaks = text.split(/\s+/).length - 1;
+
+    // Rough estimation: alphanumeric ~1:4, special chars ~1:2, word breaks ~1:1
+    const tokenEstimate = Math.ceil((alphaNumChars / 4) + (specialChars / 2) + wordBreaks);
+
+    return Math.max(1, tokenEstimate); // Minimum 1 token
 }
 
 // Calculate readability level based on text complexity
@@ -79,30 +91,26 @@ export function buildOptimizedPrompt(config) {
     return optimizedPrompt;
 }
 
-// Build prompt for Gemini enhancement (without operators and parameters)
+// Optimized prompt construction for Gemini enhancement - more efficient structure
 export function buildPromptForGeminiEnhancement(config) {
-    const {
-        prompt,
-        role,
-        tone,
-        audience,
-        format
-    } = config;
-    
-    let basePrompt = prompt;
-    
-    // Add context if available (this helps Gemini understand the enhancement context)
-    if (role || tone || audience || format) {
-        let context = '';
-        if (role) context += `Role: ${role}. `;
-        if (tone) context += `Tone: ${tone}. `;
-        if (audience) context += `Audience: ${audience}. `;
-        if (format) context += `Format: ${format}. `;
-        
-        basePrompt = `Context: ${context}\n\nOriginal Prompt: ${prompt}`;
+    const { prompt, role, tone, audience, format } = config;
+
+    // If no contextual information, return simplified prompt directly
+    if (!role && !tone && !audience && !format) {
+        return prompt;
     }
-    
-    return basePrompt;
+
+    // Structured enhancement with clear semantic separators
+    const parts = [];
+
+    if (role) parts.push(`ROLE: ${role}`);
+    if (tone) parts.push(`TONE: ${tone}`);
+    if (audience) parts.push(`AUDIENCE: ${audience}`);
+    if (format) parts.push(`FORMAT: ${format}`);
+
+    parts.push(`PROMPT: ${prompt}`);
+
+    return parts.join('\n');
 }
 
 // Get operator by name

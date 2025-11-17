@@ -1,8 +1,17 @@
 // Gemini API Service for Prompt Enhancement
 import { useState, useEffect } from 'react';
 
-// System prompt for Gemini 2.5 Flash prompt enhancement - shortened to save tokens
-const SYSTEM_PROMPT = `You are an expert prompt engineering assistant. Enhance the following prompt to make it more effective, clear, and structured. Maintain the original intent and language, add clarity where needed, and keep it concise. Return only the enhanced prompt without any explanation or markdown formatting.`;
+// Highly optimized system prompt with examples for better Gemini enhancement
+const SYSTEM_PROMPT = `Enhance AI prompts. Preserve intent, improve clarity & specificity. Add action verbs, context details. Keep concise.
+
+Examples:
+Input: "write about cats"
+Output: "Write a detailed article about domestic cats, covering their behavior, care requirements, and history as pets"
+
+Input: "explain photosynthesis"
+Output: "Explain the process of photosynthesis in plants, including the chemical equation, required components, and its importance for life on Earth"
+
+Enhance the following prompt:`;
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 const FALLBACK_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
@@ -14,10 +23,10 @@ const createApiRequestBody = (prompt) => ({
         parts: [{ text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${prompt}` }]
     }],
     generationConfig: {
-        temperature: 0.3,
-        topP: 0.8,
-        topK: 40,
-        maxOutputTokens: 4096,
+        temperature: 0.1,
+        topP: 0.7,
+        topK: 20,
+        maxOutputTokens: 2048,
         responseMimeType: "text/plain",
     },
     safetySettings: [
@@ -48,7 +57,9 @@ export const useGeminiEnhancement = () => {
     useEffect(() => {
         // Load API key from environment variable
         const envApiKey = process.env.REACT_APP_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-        console.log('API Key status:', envApiKey ? 'loaded' : 'not loaded');
+        if (process.env.NODE_ENV === 'development') {
+            console.log('API Key status:', envApiKey ? 'loaded' : 'not loaded');
+        }
         setApiKey(envApiKey);
     }, []);
 

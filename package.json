@@ -1,7 +1,7 @@
 {
   "name": "prompt-master",
-  "version": "1.0.0",
-  "description": "A comprehensive web application for optimizing prompts for large language models (LLMs) with real-time preview, intelligent metrics, and AI-powered enhancement using Google's Gemini 2.5 Flash API",
+  "version": "1.1.0",
+  "description": "Optimizador inteligente de prompts con real-time preview, métricas avanzadas y mejora IA usando Google Gemini 2.5 Flash",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",

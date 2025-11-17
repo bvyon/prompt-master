@@ -9,24 +9,32 @@ import * as promptBuilder from './utils/promptBuilder';
 import { useGeminiEnhancement } from './utils/geminiService';
 
 const App = () => {
-    const [config, setConfig] = useState({
-        prompt: '',
-        activeOperators: [],
-        temperature: 0.7,
-        top_p: 0.9,
-        maxTokens: 1000,
-        role: '',
-        tone: '',
-        audience: '',
-        format: '',
-        chainOfThought: false,
-        reflectiveMode: false,
-        noAutopilot: false,
-        guardrail: false,
-        enhancedPrompt: ''
+    const [config, setConfig] = useState(() => {
+        // Load from localStorage if available
+        const saved = localStorage.getItem('promptMasterConfig');
+        return saved ? JSON.parse(saved) : {
+            prompt: '',
+            activeOperators: [],
+            temperature: 0.7,
+            top_p: 0.9,
+            maxTokens: 1000,
+            role: '',
+            tone: '',
+            audience: '',
+            format: '',
+            chainOfThought: false,
+            reflectiveMode: false,
+            noAutopilot: false,
+            guardrail: false,
+            enhancedPrompt: ''
+        };
     });
 
-    const [showMetrics, setShowMetrics] = useState(true);
+    const [showMetrics, setShowMetrics] = useState(() => {
+        const saved = localStorage.getItem('showMetrics');
+        return saved ? JSON.parse(saved) : true;
+    });
+
     const [optimizedPrompt, setOptimizedPrompt] = useState('');
     
     // Gemini enhancement hook
@@ -60,6 +68,15 @@ const App = () => {
         const builtPrompt = promptBuilder.buildOptimizedPrompt(config);
         setOptimizedPrompt(builtPrompt);
     }, [config]);
+
+    // Save to localStorage
+    useEffect(() => {
+        localStorage.setItem('promptMasterConfig', JSON.stringify(config));
+    }, [config]);
+
+    useEffect(() => {
+        localStorage.setItem('showMetrics', JSON.stringify(showMetrics));
+    }, [showMetrics]);
 
     // No auto-enhancement - only manual enhancement through button
 
@@ -168,10 +185,11 @@ const App = () => {
                             activeOperators={config.activeOperators}
                             setActiveOperators={(activeOperators) => updateConfig({ activeOperators })}
                             operators={operators}
-                            disabled={false} // Siempre activo
-                            onGenerate={() => {}} // Función vacía, ya no se necesita
+                            disabled={false}
+                            onGenerate={null}
                             isEnhancing={isEnhancing}
                             enhancementError={enhancementError}
+                            onEnhance={handleEnhancePrompt}
                         />
                     </div>
 
