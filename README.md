@@ -152,6 +152,11 @@ Desarrollado con ❤️ usando tecnologías modernas de React y IA.
 
 ## 📝 Changelog
 
+### v1.1.1 (2025-12-27)
+- ✅ **Corrección de importación AnimatePresence**: Estándar de importación unificado para evitar conflictos de bundling
+- ✅ **Optimización de bundle**: Eliminación de importaciones duplicadas de framer-motion
+- ✅ **Consistencia de código**: Patrón de importación unificado en 6 componentes
+
 ### v1.1.0 (2025)
 - ✅ **Prompt de Gemini optimizado** (25% más eficiente)
 - ✅ **PWA instalable** en cualquier dispositivo

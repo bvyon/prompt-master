@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-12-27
+
+### Fixed
+- ✅ **AnimatePresence import error**: Standardized all framer-motion imports across the codebase to prevent bundling conflicts
+- ✅ **Consistent import patterns**: Changed from mixed import styles to unified wildcard imports for better bundle optimization
+
+### Technical
+- 🔧 **Import standardization**: All components now use `import * as framerMotion from 'framer-motion'` pattern
+- 🔧 **Bundle optimization**: Eliminated duplicate framer-motion imports that were causing runtime errors
+- 🔧 **Code consistency**: Unified import style across 6 components (App.js, Toast.js, LLMConfigurationPanel.js, PromptInputPanel.js, PromptPreviewPanel.js, MetricsPanel.js)
+
 ## [Unreleased]
 
 ## [1.0.1] - 2025-10-30
