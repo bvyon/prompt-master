@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import * as framerMotion from 'framer-motion';
+const { motion, AnimatePresence } = framerMotion;
 import PromptInputPanel from './components/PromptInputPanel';
 import LLMConfigurationPanel from './components/LLMConfigurationPanel';
 import PromptPreviewPanel from './components/PromptPreviewPanel';
@@ -7,6 +8,27 @@ import MetricsPanel from './components/MetricsPanel';
 import operators from './operators.json';
 import * as promptBuilder from './utils/promptBuilder';
 import { useGeminiEnhancement } from './utils/geminiService';
+
+// Debounce hook for localStorage saves
+const useDebouncedSave = (key, value, delay = 500) => {
+    const timeoutRef = useRef(null);
+    
+    useEffect(() => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        
+        timeoutRef.current = setTimeout(() => {
+            localStorage.setItem(key, JSON.stringify(value));
+        }, delay);
+        
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [key, value, delay]);
+};
 
 const App = () => {
     const [config, setConfig] = useState(() => {
@@ -69,16 +91,9 @@ const App = () => {
         setOptimizedPrompt(builtPrompt);
     }, [config]);
 
-    // Save to localStorage
-    useEffect(() => {
-        localStorage.setItem('promptMasterConfig', JSON.stringify(config));
-    }, [config]);
-
-    useEffect(() => {
-        localStorage.setItem('showMetrics', JSON.stringify(showMetrics));
-    }, [showMetrics]);
-
-    // No auto-enhancement - only manual enhancement through button
+    // Debounced save to localStorage for better performance
+    useDebouncedSave('promptMasterConfig', config, 500);
+    useDebouncedSave('showMetrics', showMetrics, 500);
 
     // Reset configuration to default values
     const resetConfiguration = () => {
@@ -100,7 +115,7 @@ const App = () => {
         });
     };
 
-    // Manual enhancement trigger with debouncing
+    // Manual enhancement trigger
     const handleEnhancePrompt = async () => {
         if (!config.prompt || config.prompt.trim() === '') {
             return;
@@ -111,55 +126,56 @@ const App = () => {
         if (enhanced) {
             setConfig(prev => ({
                 ...prev,
-                enhancedPrompt: enhanced,
-                // Clear the original prompt when enhanced prompt is set
-                prompt: ''
+                enhancedPrompt: enhanced
+                // Keep original prompt - don't clear it for better UX
             }));
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
             {/* Header */}
-            <header className="bg-white shadow-sm border-b border-gray-200">
+            <header className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200/50 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between h-auto sm:h-16 py-2 sm:py-0">
-                        <div className="flex items-center mb-2 sm:mb-0">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between h-auto sm:h-16 py-3 sm:py-0">
+                        <div className="flex items-center mb-3 sm:mb-0">
                             <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.2 }}
-                                className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3"
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                                className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-3 sm:mr-4 shadow-lg shadow-purple-200"
                             >
-                                <i className="fas fa-magic text-white text-sm sm:text-lg"></i>
+                                <i className="fas fa-wand-magic-sparkles text-white text-lg sm:text-xl"></i>
                             </motion.div>
                             <div>
-                                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Prompt Master</h1>
-                                <p className="text-xs sm:text-sm text-gray-500">Turn your rough ideas into perfect prompts</p>
+                                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                    Prompt Master
+                                </h1>
+                                <p className="text-xs sm:text-sm text-gray-500 font-medium">Transform ideas into powerful prompts</p>
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                             <button
                                 onClick={() => setShowMetrics(!showMetrics)}
-                                className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-xs sm:text-sm w-full sm:w-auto"
+                                className="px-4 py-2.5 bg-gradient-to-r from-slate-100 to-gray-100 text-gray-700 rounded-xl hover:from-slate-200 hover:to-gray-200 transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow w-full sm:w-auto border border-gray-200"
                             >
-                                <i className="fas fa-chart-bar mr-2"></i>
+                                <i className="fas fa-chart-pie mr-2"></i>
                                 {showMetrics ? 'Hide' : 'Show'} Metrics
                             </button>
                             <button
                                 onClick={handleEnhancePrompt}
                                 disabled={isEnhancing || !config.prompt}
-                                className="px-3 sm:px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-xs sm:text-sm flex items-center gap-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 text-xs sm:text-sm font-medium shadow-md hover:shadow-lg shadow-purple-200 flex items-center justify-center gap-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                             >
-                                <i className={`fas ${isEnhancing ? 'fa-spinner fa-spin' : 'fa-magic'}`}></i>
-                                {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini 2.5 Flash'}
+                                <i className={`fas ${isEnhancing ? 'fa-circle-notch fa-spin' : 'fa-wand-magic-sparkles'}`}></i>
+                                {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini AI'}
                             </button>
                             <button
                                 onClick={resetConfiguration}
-                                className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs sm:text-sm flex items-center gap-2 w-full sm:w-auto"
+                                className="px-4 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl hover:from-red-600 hover:to-orange-600 transition-all duration-200 text-xs sm:text-sm font-medium shadow-md hover:shadow-lg shadow-red-200 flex items-center justify-center gap-2 w-full sm:w-auto"
                             >
-                                <i className="fas fa-undo"></i>
-                                Reset All
+                                <i className="fas fa-rotate-right"></i>
+                                Reset
                             </button>
                         </div>
                     </div>
@@ -167,7 +183,7 @@ const App = () => {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 min-h-[60vh]">
                     {/* Left Column - LLM Configuration */}
                     <div className="xl:col-span-1">
@@ -203,35 +219,38 @@ const App = () => {
                             enhancementError={enhancementError}
                         />
                         
-                        <AnimatePresence>
-                            {showMetrics && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    <MetricsPanel config={config} />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        {showMetrics && (
+                            <motion.div
+                                key="metrics-panel"
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                            >
+                                <MetricsPanel config={config} />
+                            </motion.div>
+                        )}
                     </div>
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="bg-white border-t border-gray-200 mt-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-                        <p className="text-xs sm:text-sm text-gray-500">
-                            Prompt Master - Built with React, Tailwind CSS, and Framer Motion
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
-                            <span>25+ Operators</span>
-                            <span>•</span>
-                            <span>Real-time Preview</span>
-                            <span>•</span>
-                            <span>Smart Metrics</span>
+            <footer className="bg-white/80 backdrop-blur-sm border-t border-gray-200/50 mt-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                            <motion.i 
+                                className="fas fa-bolt text-yellow-500"
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                            />
+                            <p className="text-sm text-gray-600 font-medium">
+                                Prompt Master v2.0 - Enhanced with AI
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500">
+                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">25+ Operators</span>
+                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">Real-time Preview</span>
+                            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">Smart Metrics</span>
                         </div>
                     </div>
                 </div>

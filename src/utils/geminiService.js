@@ -1,17 +1,44 @@
 // Gemini API Service for Prompt Enhancement
 import { useState, useEffect } from 'react';
 
-// Highly optimized system prompt with examples for better Gemini enhancement
-const SYSTEM_PROMPT = `Enhance AI prompts. Preserve intent, improve clarity & specificity. Add action verbs, context details. Keep concise.
+// Enhanced system prompt with comprehensive examples and best practices
+const SYSTEM_PROMPT = `You are an expert prompt engineer. Your task is to enhance user prompts to make them more effective, clear, and specific for AI language models.
 
-Examples:
+## Enhancement Principles:
+1. Add clarity and specificity
+2. Include relevant context and constraints
+3. Use action-oriented language
+4. Structure the prompt logically
+5. Maintain the original intent
+
+## Enhancement Guidelines:
+- Add concrete details and examples where needed
+- Specify desired output format and structure
+- Include relevant domain expertise context
+- Add constraints or parameters when appropriate
+- Improve readability while keeping it concise
+- Preserve the core request and intent
+
+## Examples of Enhancement:
+
+### Example 1: Simple Request
 Input: "write about cats"
-Output: "Write a detailed article about domestic cats, covering their behavior, care requirements, and history as pets"
+Enhanced Output: "Write a comprehensive article about domestic cats (Felis catus) covering their physical characteristics, behavioral patterns, care requirements, breeds, and their historical relationship with humans as pets. Include practical advice for potential cat owners."
 
+### Example 2: Explanation Request
 Input: "explain photosynthesis"
-Output: "Explain the process of photosynthesis in plants, including the chemical equation, required components, and its importance for life on Earth"
+Enhanced Output: "Explain the biological process of photosynthesis in plants, including the light-dependent reactions and Calvin cycle. Detail the chemical equation (6CO2 + 6H2O + light energy → C6H12O6 + 6O2), the role of chloroplasts, and the importance of photosynthesis for Earth's ecosystems and oxygen production."
 
-Enhance the following prompt:`;
+### Example 3: Technical Topic
+Input: "how does machine learning work"
+Enhanced Output: "Explain the fundamental concepts of machine learning, including supervised, unsupervised, and reinforcement learning. Describe key algorithms like neural networks, decision trees, and support vector machines. Discuss training data, model evaluation metrics, and practical applications in various industries."
+
+### Example 4: Creative Request
+Input: "write a story about space exploration"
+Enhanced Output: "Write an engaging science fiction story about humanity's first interstellar expedition. Include detailed descriptions of the spacecraft technology, the challenges of deep space travel, alien encounters, and the emotional journey of the crew members. Balance scientific accuracy with narrative tension."
+
+## Instructions:
+Enhance the following prompt according to the principles above. Make it more specific, clear, and effective while maintaining the original intent. Do not add information not implied by the request, but do fill in reasonable context and details that would help an AI produce better results.`;
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 const FALLBACK_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
@@ -20,13 +47,13 @@ const FALLBACK_API_URL = 'https://generativelanguage.googleapis.com/v1beta/model
 const createApiRequestBody = (prompt) => ({
     contents: [{
         role: "user",
-        parts: [{ text: `${SYSTEM_PROMPT}\n\nEnhance the following prompt:\n\n${prompt}` }]
+        parts: [{ text: `${SYSTEM_PROMPT}\n\nInput Prompt:\n${prompt}\n\nEnhanced Prompt:` }]
     }],
     generationConfig: {
-        temperature: 0.1,
-        topP: 0.7,
-        topK: 20,
-        maxOutputTokens: 2048,
+        temperature: 0.3,
+        topP: 0.8,
+        topK: 40,
+        maxOutputTokens: 4096,
         responseMimeType: "text/plain",
     },
     safetySettings: [
@@ -65,7 +92,7 @@ export const useGeminiEnhancement = () => {
 
     const enhancePrompt = async (originalPrompt) => {
         if (!apiKey) {
-            setError('Gemini API key not configured');
+            setError('Gemini API key not configured. Please add REACT_APP_GEMINI_API_KEY to your .env file.');
             return null;
         }
 
@@ -78,8 +105,8 @@ export const useGeminiEnhancement = () => {
         setError(null);
 
         try {
-            console.log('Sending request to Gemini API with prompt:', originalPrompt.substring(0, 100) + '...');
-            console.log('Using API URL:', GEMINI_API_URL);
+            console.log('Sending request to Gemini API...');
+            console.log('Input prompt length:', originalPrompt.length);
             
             let response;
             let apiUsed = GEMINI_API_URL;
@@ -97,7 +124,7 @@ export const useGeminiEnhancement = () => {
                     }
                 );
             } catch (fetchError) {
-                console.log('First API attempt failed, trying fallback...');
+                console.log('Primary API endpoint failed, trying fallback...');
                 apiUsed = FALLBACK_API_URL;
                 response = await fetch(
                     `${FALLBACK_API_URL}?key=${apiKey}`,
@@ -123,22 +150,23 @@ export const useGeminiEnhancement = () => {
             }
 
             const responseText = await response.text();
-            console.log('Raw API Response:', responseText);
+            console.log('Received API response');
             
             let data;
             try {
                 data = JSON.parse(responseText);
             } catch (parseError) {
-                console.error('Failed to parse API response:', parseError, 'Response:', responseText);
+                console.error('Failed to parse API response:', parseError);
                 throw new Error('Invalid JSON response from Gemini API');
             }
             
             // Extract enhanced prompt from API response
             const enhancedPrompt = extractEnhancedPrompt(data, apiUsed);
             if (!enhancedPrompt) {
-                throw new Error(`No enhanced prompt returned from API (${apiUsed}). Please check the console for the full response structure.`);
+                throw new Error(`No enhanced prompt returned from API. Please check the console for details.`);
             }
 
+            console.log('Successfully enhanced prompt');
             return enhancedPrompt.trim();
 
         } catch (err) {
@@ -176,7 +204,7 @@ export const useGeminiEnhancement = () => {
 
 // Extract enhanced prompt from API response
 const extractEnhancedPrompt = (data, apiUsed) => {
-    console.log('Analyzing response structure...');
+    console.log('Extracting enhanced prompt from response structure...');
     
     // Standard Gemini response structure
     if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {

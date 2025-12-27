@@ -1,5 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import * as framerMotion from 'framer-motion';
+const { motion } = framerMotion;
 import * as promptBuilder from '../utils/promptBuilder';
 
 const MetricsPanel = ({ config }) => {

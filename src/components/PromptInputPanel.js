@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo, useCallback, memo } from 'react';
+import * as framerMotion from 'framer-motion';
+const { motion } = framerMotion;
 import * as promptBuilder from '../utils/promptBuilder';
 import { getColorClasses } from '../utils/colorClasses';
 
-const PromptInputPanel = ({
+const PromptInputPanel = memo(({
     prompt,
     setPrompt,
     activeOperators,
@@ -39,60 +40,64 @@ const PromptInputPanel = ({
         return ['all', ...new Set(operators.map(op => op.category))];
     }, [operators]);
 
-    // `setActiveOperators` is a prop (handler) provided by parent; always call it with the new array
-    const toggleOperator = (operator) => {
+    // Memoized toggle operator function
+    const toggleOperator = useCallback((operator) => {
         const isActive = activeOperators.includes(operator);
         const next = isActive ? activeOperators.filter(op => op !== operator) : [...activeOperators, operator];
         setActiveOperators(next);
-    };
+    }, [activeOperators, setActiveOperators]);
 
-    const copyToClipboard = (text) => {
+    const copyToClipboard = useCallback((text) => {
         navigator.clipboard.writeText(text);
-        // You could add a toast notification here
-    };
+        // Toast notification is handled by ToastContext
+    }, []);
 
     return (
         <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col"
+            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 h-full flex flex-col"
         >
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                    <i className="fas fa-edit text-blue-500 mr-2"></i>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                    <i className="fas fa-pen-fancy text-blue-500 mr-2"></i>
                     Prompt Input
                 </h2>
-                <p className="text-gray-600">Enter your raw prompt and apply operators</p>
+                <p className="text-gray-600 text-sm">Enter your raw prompt and apply operators</p>
             </div>
 
             {/* Textarea for prompt input */}
             <div className="mb-6 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <i className="fas fa-lightbulb text-yellow-500"></i>
                     Your Prompt
                 </label>
                 <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Enter your prompt here..."
+                    placeholder="Enter your prompt here... (e.g., 'Explain quantum computing in simple terms')"
                     disabled={disabled}
-                    className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-60"
+                    className="w-full h-32 p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-white/50 hover:bg-white/70"
                 />
             </div>
 
             {/* Search and filter */}
             <div className="mb-4">
                 <div className="flex gap-2 mb-3">
-                    <input
-                        type="text"
-                        placeholder="Search operators..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    />
+                    <div className="relative flex-1">
+                        <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input
+                            type="text"
+                            placeholder="Search operators..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 bg-white/50 hover:bg-white/70"
+                        />
+                    </div>
                     <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 bg-white/50 hover:bg-white/70"
                     >
                         {categories.map(category => (
                             <option key={category} value={category}>
@@ -103,9 +108,12 @@ const PromptInputPanel = ({
                 </div>
             </div>
 
-            {/* Operator buttons */}
+            {/* Quick Operators */}
             <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Operators</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <i className="fas fa-bolt text-orange-500"></i>
+                    Quick Operators
+                </h3>
                 <div className="flex flex-wrap gap-2 mb-3">
                     {['/ELI5', '/STEP-BY-STEP', '/EXEC SUMMARY', '/CHAIN OF THOUGHT'].map(op => {
                         const operator = promptBuilder.getOperatorByName(operators, op);
@@ -116,11 +124,11 @@ const PromptInputPanel = ({
                                 key={op}
                                 onClick={() => !disabled && toggleOperator(op)}
                                 disabled={disabled}
-                                className={`operator-badge px-3 py-1 rounded-full text-xs font-medium ${
+                                className={`operator-badge px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
                                     activeOperators.includes(op)
-                                        ? `${color.bgSolid} ${color.textSolid}`
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                        ? `${color.bgSolid} ${color.textSolid} shadow-md`
+                                        : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300'
+                                } ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
                             >
                                 {op}
                             </button>
@@ -130,46 +138,49 @@ const PromptInputPanel = ({
             </div>
 
             {/* All operators */}
-            <div className="flex-1 overflow-y-auto">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">All Operators</h3>
+            <div className="flex-1 overflow-y-auto scrollbar-thin">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <i className="fas fa-list text-purple-500"></i>
+                    All Operators
+                </h3>
                 <div className="grid grid-cols-1 gap-2 max-h-64 sm:max-h-80 md:max-h-96 overflow-y-auto pr-2">
                     {filteredOperators.length === 0 && (
-                        <div className="p-4 text-sm text-gray-500">No operators match your filters. Try clearing the search or selecting a different category.</div>
+                        <div className="p-4 text-sm text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                            <i className="fas fa-search-minus mr-2"></i>
+                            No operators match your filters. Try clearing the search or selecting a different category.
+                        </div>
                     )}
                     {filteredOperators.map(operator => {
                         const classes = getColorClasses(operator.color);
                         return (
-                            <motion.div
+                            <motion.button
                                 key={operator.operator}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
+                                onClick={() => !disabled && toggleOperator(operator.operator)}
+                                disabled={disabled}
+                                className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${
+                                    activeOperators.includes(operator.operator)
+                                        ? `${classes.border} ${classes.bg} shadow-md`
+                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100'
+                                } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                <button
-                                    onClick={() => !disabled && toggleOperator(operator.operator)}
-                                    disabled={disabled}
-                                    className={`w-full text-left p-3 rounded-lg border transition-all ${
+                                <div className="flex items-center justify-between">
+                                    <span className={`font-semibold ${
                                         activeOperators.includes(operator.operator)
-                                            ? `${classes.border} ${classes.bg}`
-                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                    } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span className={`font-medium ${
-                                            activeOperators.includes(operator.operator)
-                                                ? classes.text
-                                                : 'text-gray-800'
-                                        }`}>
-                                            {operator.operator}
-                                        </span>
-                                        {activeOperators.includes(operator.operator) && (
-                                            <i className="fas fa-check text-xs"></i>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        {operator.description}
-                                    </p>
-                                </button>
-                            </motion.div>
+                                            ? classes.text
+                                            : 'text-gray-800'
+                                    }`}>
+                                        {operator.operator}
+                                    </span>
+                                    {activeOperators.includes(operator.operator) && (
+                                        <i className="fas fa-check-circle text-xs"></i>
+                                    )}
+                                </div>
+                                <p className="text-xs text-gray-600 mt-1">
+                                    {operator.description}
+                                </p>
+                            </motion.button>
                         );
                     })}
                 </div>
@@ -177,33 +188,39 @@ const PromptInputPanel = ({
 
             {/* Active operators display */}
             {activeOperators.length > 0 && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100"
+                >
                     <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-medium text-blue-800">Active Operators</h4>
+                        <h4 className="text-sm font-semibold text-blue-800 flex items-center gap-2">
+                            <i className="fas fa-check-double"></i>
+                            Active Operators
+                        </h4>
                         <button
                             onClick={() => setActiveOperators([])}
-                            className="text-xs text-blue-600 hover:text-blue-800"
+                            className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
                         >
                             Clear All
                         </button>
                     </div>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1.5">
                         {activeOperators.map(op => {
                             const operator = promptBuilder.getOperatorByName(operators, op);
                             if (!operator) return null;
                             const classes = getColorClasses(operator.color);
-                            // Use the mapped bg and text classes instead of dynamic template strings
                             return (
                                 <span
                                     key={op}
-                                    className={`px-2 py-1 rounded text-xs font-medium ${classes.bg} ${classes.text}`}
+                                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${classes.bg} ${classes.text} shadow-sm`}
                                 >
                                     {op}
                                 </span>
                             );
                         })}
                     </div>
-                </div>
+                </motion.div>
             )}
             
             {/* Gemini Enhancement Button */}
@@ -211,32 +228,31 @@ const PromptInputPanel = ({
                 <button
                     onClick={onEnhance}
                     disabled={!prompt || disabled || isEnhancing || !onEnhance}
-                    className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg font-semibold disabled:shadow-none"
                     aria-label="Enhance your prompt with Gemini"
                 >
-                    <i className={`fas ${isEnhancing ? 'fa-spinner fa-spin' : 'fa-magic'}`}></i>
+                    <i className={`fas ${isEnhancing ? 'fa-circle-notch fa-spin' : 'fa-wand-magic-sparkles'}`}></i>
                     {isEnhancing ? 'Enhancing...' : 'Enhance with Gemini AI'}
                 </button>
                 
                 {enhancementError && (
-                    <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded" role="alert">
-                        <i className="fas fa-exclamation-triangle mr-1"></i>
-                        Enhancement failed: {enhancementError}
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 p-3 bg-red-50 border-2 border-red-200 rounded-xl"
+                        role="alert"
+                    >
+                        <div className="flex items-start gap-2 text-red-700 text-sm">
+                            <i className="fas fa-exclamation-circle mt-0.5"></i>
+                            <span className="flex-1">{enhancementError}</span>
+                        </div>
+                    </motion.div>
                 )}
-            </div>
-            
-            <div className="mt-4">
-                <button
-                    onClick={() => onGenerate && onGenerate()}
-                    disabled={disabled}
-                    className={`w-full px-4 py-2 rounded-lg text-white ${disabled ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
-                >
-                    Generate Prompt
-                </button>
             </div>
         </motion.div>
     );
-};
+});
+
+PromptInputPanel.displayName = 'PromptInputPanel';
 
 export default PromptInputPanel;

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import * as framerMotion from 'framer-motion';
+const { motion, AnimatePresence } = framerMotion;
 
 const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
     useEffect(() => {
